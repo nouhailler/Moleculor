@@ -2,17 +2,22 @@
    enrich the food database on demand (see data/enrich.ts). Models can be loaded
    live from OpenRouter's public catalogue and filtered via a datalist. */
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { colors, font, radius } from '../theme/tokens';
 import { Sheet } from './Sheet';
 import { CloseIcon } from '../components/icons';
 import { fetchModels, type OpenRouterModel } from '../data/enrich';
+import { buildExport, parseImport } from '../data/store';
 import type { OpenRouterSettings } from '../data/settings';
 
 interface Props {
   settings: OpenRouterSettings;
   onSave: (s: OpenRouterSettings) => void;
   onClose: () => void;
+  /** User-generated food specs, for export. */
+  generatedSpecs: any[];
+  /** Merge imported specs into the live DB; returns kept/skipped counts. */
+  onImport: (incoming: any[]) => { added: number; skipped: number };
 }
 
 const label: React.CSSProperties = {
@@ -37,13 +42,45 @@ const input: React.CSSProperties = {
   outline: 'none',
 };
 
-export function SettingsSheet({ settings, onSave, onClose }: Props) {
+export function SettingsSheet({ settings, onSave, onClose, generatedSpecs, onImport }: Props) {
   const [apiKey, setApiKey] = useState(settings.apiKey);
   const [model, setModel] = useState(settings.model);
   const [showKey, setShowKey] = useState(false);
   const [models, setModels] = useState<OpenRouterModel[]>([]);
   const [loadingModels, setLoadingModels] = useState(false);
   const [modelsError, setModelsError] = useState<string | null>(null);
+
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [backupMsg, setBackupMsg] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null);
+  const foodCount = generatedSpecs.length;
+
+  const exportFoods = () => {
+    try {
+      const blob = new Blob([JSON.stringify(buildExport(generatedSpecs), null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `moleculor-aliments-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setBackupMsg({ kind: 'ok', text: `${foodCount} aliment${foodCount > 1 ? 's' : ''} exporté${foodCount > 1 ? 's' : ''}.` });
+    } catch {
+      setBackupMsg({ kind: 'err', text: "Échec de l'export." });
+    }
+  };
+
+  const importFoods = async (file: File) => {
+    try {
+      const list = parseImport(await file.text());
+      const { added, skipped } = onImport(list);
+      setBackupMsg({
+        kind: 'ok',
+        text: `${added} aliment${added > 1 ? 's' : ''} importé${added > 1 ? 's' : ''}${skipped ? ` · ${skipped} ignoré${skipped > 1 ? 's' : ''} (doublons)` : ''}.`,
+      });
+    } catch (e) {
+      setBackupMsg({ kind: 'err', text: e instanceof Error ? e.message : "Échec de l'import." });
+    }
+  };
 
   const loadModels = async () => {
     setLoadingModels(true);
@@ -129,6 +166,44 @@ export function SettingsSheet({ settings, onSave, onClose }: Props) {
             )}
             {modelsError && <span style={{ fontSize: 11.5, color: colors.watch }}>{modelsError}</span>}
           </div>
+        </div>
+
+        {/* Backup: export / import generated foods */}
+        <div style={{ marginTop: 24, paddingTop: 20, borderTop: `1px solid ${colors.separator}` }}>
+          <label style={label}>Sauvegarde des aliments</label>
+          <div style={{ fontSize: 12.5, color: colors.ink2, lineHeight: 1.45, marginBottom: 12 }}>
+            Exporte tes aliments créés par l'IA dans un fichier, puis importe-le sur un autre appareil pour
+            y recréer toutes les fiches à l'identique.
+          </div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button onClick={exportFoods} disabled={foodCount === 0} style={{ ...ghostBtn, opacity: foodCount === 0 ? 0.5 : 1, cursor: foodCount === 0 ? 'default' : 'pointer' }}>
+              Exporter{foodCount ? ` (${foodCount})` : ''}
+            </button>
+            <button onClick={() => fileRef.current?.click()} style={ghostBtn}>
+              Importer un fichier
+            </button>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="application/json,.json"
+              style={{ display: 'none' }}
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) importFoods(f);
+                e.target.value = ''; // allow re-importing the same file
+              }}
+            />
+          </div>
+          {foodCount === 0 && (
+            <div style={{ fontSize: 11.5, color: colors.inkSoft, marginTop: 9 }}>
+              Aucun aliment généré pour l'instant — l'import reste disponible.
+            </div>
+          )}
+          {backupMsg && (
+            <div style={{ fontSize: 12, marginTop: 10, color: backupMsg.kind === 'err' ? colors.watch : colors.benefic }}>
+              {backupMsg.text}
+            </div>
+          )}
         </div>
 
         <button onClick={save} style={saveBtn}>Enregistrer</button>

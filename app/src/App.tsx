@@ -23,7 +23,7 @@ const PORTION_MAX = 500;
 const PORTION_STEP = 10;
 
 export default function App() {
-  const { db, addFood } = useFoodDB();
+  const { db, addFood, importSpecs, generatedSpecs } = useFoodDB();
 
   const [tab, setTab] = useState<Tab>('compo');
   const [foodId, setFoodId] = useState('chocolat-noir');
@@ -166,7 +166,13 @@ export default function App() {
         />
       )}
       {settingsOpen && (
-        <SettingsSheet settings={settings} onSave={saveSettingsAndClose} onClose={() => setSettingsOpen(false)} />
+        <SettingsSheet
+          settings={settings}
+          onSave={saveSettingsAndClose}
+          onClose={() => setSettingsOpen(false)}
+          generatedSpecs={generatedSpecs}
+          onImport={importSpecs}
+        />
       )}
       {genJob && (
         <GenerationBadge job={genJob} onOpen={pickFood} onDismiss={() => setGenJob(null)} />

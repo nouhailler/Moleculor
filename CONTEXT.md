@@ -43,6 +43,16 @@ Les aliments générés sont stockés dans `localStorage` (`moleculor.generated`
 
 Une réponse bruitée produit au pire un aliment dégradé, jamais un crash.
 
+### 6. Sauvegarde = export/import des *specs*
+
+L'export (`store.ts` → `buildExport`) sérialise les *specs* générés (pas les `Food`),
+enveloppés dans `{ app, type, version, exportedAt, count, foods }`. L'import
+(`parseImport` + `mergeSpecs`) accepte le wrapper **ou** un tableau brut, déduplique
+par id contre les aliments intégrés et existants, et fait repasser chaque *spec* par
+`makeFood`. Conséquence : un fichier de sauvegarde recrée les fiches à l'identique sur
+un autre appareil, et profite des améliorations futures de la dérivation. La clé API
+n'est jamais incluse dans l'export.
+
 ## 🧬 Modèle de données
 
 Défini dans `app/src/data/types.ts`. Pièces principales :

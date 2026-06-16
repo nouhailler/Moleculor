@@ -36,6 +36,7 @@ On choisit un aliment, on ajuste la **portion** (10–500 g), et toutes les vale
 | 🎚️ | **Portion dynamique** | Stepper 10–500 g, recalcul live des valeurs et des valences |
 | 🤖 | **Enrichissement IA** | Génère un aliment absent via **OpenRouter** (clé + modèle au choix) |
 | ⏳ | **Génération en arrière-plan** | Badge flottant « IA » avec sablier animé + décompte en secondes, navigation jamais bloquée |
+| 💾 | **Sauvegarde** | **Export / import** des aliments créés par l'IA (fichier JSON) pour recréer les fiches sur un autre appareil |
 | 📱 | **PWA installable** | Icône d'app, plein écran, prête pour Netlify |
 
 ## 📸 Aperçu des écrans
@@ -107,6 +108,10 @@ Quand un aliment n'existe pas encore, on peut le **générer** :
 5. 🧪 Sous le capot : le modèle renvoie un *spec* compact → **assaini** → passé à `makeFood`, qui dérive arbre, timeline, bénéfices et risques exactement comme les aliments intégrés.
 
 Les aliments générés sont **persistés** dans `localStorage` sous forme de *specs* (pas l'objet `Food` dérivé), pour rester compatibles si le schéma évolue.
+
+### 💾 Sauvegarde (changer d'appareil)
+
+Dans **⚙ Paramètres → Sauvegarde des aliments** : **Exporter** télécharge un fichier JSON contenant tous tes aliments créés par l'IA ; **Importer** le relit sur un autre appareil et **recrée les fiches à l'identique** (les *specs* repassent par `makeFood`). L'import ignore les doublons et n'inclut pas la clé API.
 
 > ⚠️ **Sécurité** — la clé OpenRouter est stockée **en clair** côté client (`localStorage`). Acceptable pour une démo locale ; en production, la déplacer derrière un proxy backend pour qu'elle n'atteigne jamais le navigateur.
 

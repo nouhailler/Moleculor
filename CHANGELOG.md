@@ -9,6 +9,10 @@ adhère au [versionnage sémantique](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- **Sauvegarde des aliments** (Paramètres) : **export** des aliments créés par l'IA
+  dans un fichier JSON et **import** sur un autre appareil pour recréer les fiches à
+  l'identique (les *specs* repassent par `makeFood`). L'import déduplique par id et
+  n'inclut jamais la clé API.
 - **Comparaison fine** : les lignes **Protéines**, **Lipides** et **Glucides** se
   déplient pour comparer les sous-types entre A et B — acides aminés essentiels,
   classes d'acides gras (saturés / mono / poly-insaturés) et types de glucides
