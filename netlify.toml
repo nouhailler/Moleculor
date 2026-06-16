@@ -1,0 +1,27 @@
+# Netlify deployment — the app lives in the app/ subdirectory.
+[build]
+  base = "app"
+  command = "npm run build"
+  publish = "app/dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# SPA fallback: every route serves index.html (client-side rendering).
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Long-cache the immutable, content-hashed build assets.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Always revalidate the PWA manifest and service-worker-adjacent files.
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+    Content-Type = "application/manifest+json"

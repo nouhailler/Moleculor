@@ -1,0 +1,47 @@
+/* Runtime food store: the built-in database (foodData.ts) merged with foods the
+   user generated via OpenRouter. Generated specs are persisted as the compact
+   makeFood spec — not the derived Food — so the tree/timeline/etc. are always
+   rebuilt by the same code path as the curated foods, and the schema stays
+   forward-compatible. */
+
+import { FOOD_DB, makeFood } from './foodData';
+import type { FoodDB } from './types';
+
+const STORAGE_KEY = 'moleculor.generated';
+
+export function loadGeneratedSpecs(): any[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveGeneratedSpecs(specs: any[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(specs));
+  } catch {
+    /* storage unavailable — generated foods just won't persist */
+  }
+}
+
+/** Merge the built-in DB with the generated specs (generated ones appended,
+    so they sort after the curated foods in search). Built-in foods win on id
+    collision — sanitised spec ids are deduped against the DB before saving. */
+export function buildDB(specs: any[]): FoodDB {
+  const foods = { ...FOOD_DB.foods };
+  const order = [...FOOD_DB.order];
+  for (const spec of specs) {
+    if (!spec || typeof spec.id !== 'string' || foods[spec.id]) continue;
+    try {
+      foods[spec.id] = makeFood(spec);
+      order.push(spec.id);
+    } catch {
+      /* skip a malformed persisted spec rather than breaking the whole DB */
+    }
+  }
+  return { families: FOOD_DB.families, foods, order };
+}

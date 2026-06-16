@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    @keyframes molFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    @keyframes molSheet { from { transform: translateY(102%); } to { transform: translateY(0); } }
+    @keyframes molOv { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes molPulse { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+    *::-webkit-scrollbar { width: 0; height: 0; }
+  </style>
+  <script src="./foodData.js"></script>
+</helmet>
+<div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 36px 24px; box-sizing: border-box; background: radial-gradient(130% 120% at 50% -10%, #f1eee5 0%, #e6e1d6 58%, #dad4c6 100%); font-family: 'IBM Plex Sans', system-ui, sans-serif;">
+  <x-import component="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+
+    <div style="position: relative; height: 100%; background: #f4f2ea; color: #211d17; overflow: hidden;">
+
+      <sc-if value="{{ loading }}" hint-placeholder-val="{{ true }}">
+        <div style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: #f4f2ea;">
+          <div style="font-family: 'Newsreader', serif; font-size: 30px; font-weight: 400; letter-spacing: 0.5px;">Moleculor</div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #a39a8b; animation: molPulse 1.4s ease-in-out infinite;">Analyse moléculaire</div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ ready }}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; flex-direction: column; height: 100%;">
+
+          <!-- ── HEADER ── -->
+          <div style="padding: 54px 20px 14px; flex-shrink: 0; background: linear-gradient(#f4f2ea 72%, rgba(244,242,234,0)); position: relative; z-index: 5;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #a39a8b;">Moleculor</div>
+              <div onClick="{{ openSearch }}" style="width: 38px; height: 38px; border-radius: 50%; background: #ffffff; border: 1px solid #e7e1d4; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 1px 2px rgba(33,29,23,0.04);">
+                <svg width="17" height="17" viewBox="0 0 18 18"><circle cx="7.5" cy="7.5" r="5.6" fill="none" stroke="#57514a" stroke-width="1.7"></circle><line x1="11.7" y1="11.7" x2="16" y2="16" stroke="#57514a" stroke-width="1.7" stroke-linecap="round"></line></svg>
+              </div>
+            </div>
+            <div onClick="{{ openSearch }}" style="cursor: pointer;">
+              <div style="font-family: 'Newsreader', serif; font-size: 31px; font-weight: 400; line-height: 1.05; letter-spacing: 0.2px;">{{ foodName }}</div>
+              <div style="display: flex; align-items: center; gap: 8px; margin-top: 9px;">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: #6b6357; background: #ece7dc; border-radius: 100px; padding: 4px 9px;">{{ foodCat }}</span>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 14px;">
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: #a39a8b;">Portion analysée</span>
+              <div style="display: flex; align-items: center; gap: 2px; background: #ffffff; border: 1px solid #e7e1d4; border-radius: 100px; padding: 4px;">
+                <div onClick="{{ portionDec }}" style="width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                  <svg width="12" height="2" viewBox="0 0 12 2"><line x1="1" y1="1" x2="11" y2="1" stroke="#57514a" stroke-width="2" stroke-linecap="round"></line></svg>
+                </div>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #211d17; min-width: 56px; text-align: center;">{{ portionStr }}</span>
+                <div onClick="{{ portionInc }}" style="width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                  <svg width="12" height="12" viewBox="0 0 12 12"><line x1="6" y1="1" x2="6" y2="11" stroke="#57514a" stroke-width="2" stroke-linecap="round"></line><line x1="1" y1="6" x2="11" y2="6" stroke="#57514a" stroke-width="2" stroke-linecap="round"></line></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── SCROLL CONTENT ── -->
+          <div style="flex: 1; overflow-y: auto; padding: 6px 16px 26px;">
+
+            <!-- COMPOSITION -->
+            <sc-if value="{{ isCompo }}" hint-placeholder-val="{{ true }}">
+              <div>
+                <div style="background: #ffffff; border: 1px solid #ece7dc; border-radius: 24px; padding: 20px; display: flex; align-items: center; gap: 18px; box-shadow: 0 6px 20px rgba(33,29,23,0.04);">
+                  <div>{{ scoreRing }}</div>
+                  <div style="flex: 1; min-width: 0;">
+                    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: #a39a8b; margin-bottom: 5px;">Indice santé</div>
+                    <div style="font-family: 'Newsreader', serif; font-size: 19px; line-height: 1.15; margin-bottom: 8px;">{{ scoreLabel }}</div>
+                    <div style="font-size: 12.5px; line-height: 1.45; color: #6b6357;">{{ tagline }}</div>
+                  </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 12px;">
+                  <div style="flex: 1; background: #ffffff; border: 1px solid #ece7dc; border-radius: 18px; padding: 14px 16px;">
+                    <div style="font-family: 'Newsreader', serif; font-size: 26px; line-height: 1;">{{ kcalStr }}</div>
+                    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: #a39a8b; margin-top: 4px;">kcal / {{ foodPortion }}</div>
+                  </div>
+                  <div style="flex: 1; background: #ffffff; border: 1px solid #ece7dc; border-radius: 18px; padding: 14px 16px;">
+                    <div style="font-family: 'Newsreader', serif; font-size: 26px; line-height: 1;">{{ molCountStr }}</div>
+                    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: #a39a8b; margin-top: 4px;">molécules notables</div>
+                  </div>
+                </div>
+
+                <!-- macros -->
+                <div style="display: flex; align-items: center; justify-content: space-between; margin: 26px 4px 12px;">
+                  <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #6b6357;">Macronutriments</div>
+                </div>
+                <div style="background: #ffffff; border: 1px solid #ece7dc; border-radius: 24px; padding: 18px 20px; display: flex; align-items: center; gap: 18px;">
+                  <div>{{ macroDonut }}</div>
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: 11px;">
+                    <sc-for list="{{ macroLegend }}" as="m" hint-placeholder-count="5">
+                      <div style="display: flex; align-items: center; gap: 9px;">
+                        <span style="width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; background: {{ m.color }};"></span>
+                        <span style="flex: 1; font-size: 13px; color: #211d17;">{{ m.label }}</span>
+                        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #211d17; white-space: nowrap;">{{ m.gramStr }}</span>
+                        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #a39a8b; width: 34px; text-align: right;">{{ m.pctStr }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+
+                <!-- micros -->
+                <div style="margin: 26px 4px 12px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #6b6357;">Micronutriments clés</div>
+                <div style="background: #ffffff; border: 1px solid #ece7dc; border-radius: 24px; padding: 16px 20px; display: flex; flex-direction: column; gap: 14px;">
+                  <sc-for list="{{ micros }}" as="mi" hint-placeholder-count="5">
+                    <div>
+                      <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px;">
+                        <span style="font-size: 13.5px; color: #211d17;">{{ mi.name }}</span>
+                        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #6b6357;">{{ mi.valStr }} <span style="color: #bdb4a4;">· {{ mi.pctStr }} AJR</span></span>
+                      </div>
+                      <div style="height: 5px; border-radius: 100px; background: #f0ebe0; overflow: hidden;">
+                        <div style="height: 100%; border-radius: 100px; width: {{ mi.barW }}; background: {{ mi.color }};"></div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+
+                <!-- molecules preview -->
+                <div style="display: flex; align-items: center; justify-content: space-between; margin: 26px 4px 12px;">
+                  <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #6b6357;">Molécules majeures</div>
+                  <div onClick="{{ goTree }}" style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.5px; color: #2f7d5b; cursor: pointer;">Arbre complet →</div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 9px;">
+                  <sc-for list="{{ topMolecules }}" as="m" hint-placeholder-count="5">
+                    <div onClick="{{ m.open }}" style="background: #ffffff; border: 1px solid #ece7dc; border-radius: 18px; padding: 14px 16px; display: flex; align-items: center; gap: 13px; cursor: pointer;">
+                      <span style="width: 6px; height: 38px; border-radius: 100px; flex-shrink: 0; background: {{ m.color }};"></span>
+                      <div style="flex: 1; min-width: 0;">
+                        <div style="display: flex; align-items: baseline; gap: 8px;">
+                          <span style="font-size: 14.5px; color: #211d17;">{{ m.name }}</span>
+                          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #a39a8b;">{{ m.formula }}</span>
+                        </div>
+                        <div style="font-size: 11.5px; color: #8a8275; margin-top: 2px;">{{ m.family }} · {{ m.abundance }}</div>
+                      </div>
+                      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.5px; text-transform: uppercase; color: {{ m.valColor }}; border: 1px solid {{ m.valColor }}; border-radius: 100px; padding: 3px 8px; flex-shrink: 0; opacity: .9;">{{ m.valLabel }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- ARBORESCENCE -->
+            <sc-if value="{{ isTree }}" hint-placeholder-val="{{ false }}">
+              <div>
+                <div style="font-size: 13px; line-height: 1.5; color: #6b6357; margin: 4px 4px 16px;">Décomposition hiérarchique de l’aliment, des grandes familles jusqu’aux molécules individuelles. Touchez une molécule pour son détail.</div>
+                <div style="background: #ffffff; border: 1px solid #ece7dc; border-radius: 22px; padding: 6px; overflow: hidden;">
+                  <sc-for list="{{ treeRows }}" as="row" hint-placeholder-count="6">
+                    <div onClick="{{ row.openInfo }}" style="display: flex; align-items: center; gap: 10px; padding: 12px 12px; padding-left: {{ row.pad }}; cursor: pointer; border-radius: 14px;">
+                      <span onClick="{{ row.toggle }}" style="width: 30px; height: 44px; margin: -12px 0 -12px -8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                        <svg width="8" height="12" viewBox="0 0 8 12" style="opacity: {{ row.chevOpacity }}; transform: {{ row.chevTransform }}; transition: transform .2s ease;"><path d="M1 1l5 5-5 5" fill="none" stroke="#bdb4a4" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                      </span>
+                      <span style="width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; background: {{ row.color }}; box-shadow: 0 0 0 3px {{ row.halo }};"></span>
+                      <span style="flex: 1; min-width: 0; font-size: {{ row.fontSize }}; color: #211d17;">{{ row.label }}</span>
+                      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #a39a8b; white-space: nowrap; flex-shrink: 0;">{{ row.value }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- CORPS -->
+            <sc-if value="{{ isBody }}" hint-placeholder-val="{{ false }}">
+              <div>
+                <div style="background: #ffffff; border: 1px solid #ece7dc; border-radius: 24px; padding: 18px; display: flex; gap: 16px; align-items: center;">
+                  <div style="position: relative; width: 116px; height: 210px; flex-shrink: 0;">
+                    <div style="position: absolute; top: 4px; left: 50%; transform: translateX(-50%); width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(#f6f3ec,#ece6da); border: 1px solid #e3ddcf;"></div>
+                    <div style="position: absolute; top: 50px; left: 50%; transform: translateX(-50%); width: 74px; height: 154px; border-radius: 38px 38px 30px 30px; background: linear-gradient(#f6f3ec,#e9e3d6); border: 1px solid #e3ddcf;"></div>
+                    <sc-for list="{{ bodyDots }}" as="d" hint-placeholder-count="4">
+                      <div onClick="{{ d.open }}" style="position: absolute; top: {{ d.top }}; left: {{ d.left }}; transform: translate(-50%,-50%); width: 15px; height: 15px; border-radius: 50%; background: {{ d.color }}; box-shadow: 0 0 0 4px {{ d.halo }}; cursor: pointer;"></div>
+                    </sc-for>
+                  </div>
+                  <div style="flex: 1; min-width: 0;">
+                    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: #a39a8b; margin-bottom: 8px;">Systèmes touchés</div>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                      <div style="display: flex; align-items: center; gap: 8px;"><span style="width: 9px; height: 9px; border-radius: 50%; background: #2f7d5b; flex-shrink: 0;"></span><span style="font-size: 12.5px; color: #6b6357; white-space: nowrap;">Effet bénéfique</span></div>
+                      <div style="display: flex; align-items: center; gap: 8px;"><span style="width: 9px; height: 9px; border-radius: 50%; background: oklch(0.70 0.11 72); flex-shrink: 0;"></span><span style="font-size: 12.5px; color: #6b6357; white-space: nowrap;">Effet mixte</span></div>
+                      <div style="display: flex; align-items: center; gap: 8px;"><span style="width: 9px; height: 9px; border-radius: 50%; background: #c0633f; flex-shrink: 0;"></span><span style="font-size: 12.5px; color: #6b6357; white-space: nowrap;">À surveiller</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="margin: 26px 4px 12px; display: flex; align-items: center; justify-content: space-between;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #6b6357;">Carte des interactions</span><span style="font-size: 11px; color: #bdb4a4;">Touchez un système</span></div>
+                <div style="background: #ffffff; border: 1px solid #ece7dc; border-radius: 24px; padding: 6px 18px;">
+                  <sc-for list="{{ bodySystems }}" as="s" hint-placeholder-count="4">
+                    <div onClick="{{ s.open }}" style="padding: 14px 0; border-bottom: 1px solid {{ s.sep }}; cursor: pointer;">
+                      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 7px;">
+                        <span style="font-size: 14px; color: #211d17; display: flex; align-items: center; gap: 6px;">{{ s.name }}</span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                          <div style="display: flex; gap: 4px;">
+                            <sc-for list="{{ s.blocks }}" as="b" hint-placeholder-count="3">
+                              <span style="width: 20px; height: 6px; border-radius: 3px; background: {{ b.color }};"></span>
+                            </sc-for>
+                          </div>
+                          <svg width="7" height="11" viewBox="0 0 8 12" style="flex-shrink: 0;"><path d="M1 1l5 5-5 5" fill="none" stroke="#cfc7b7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        </div>
+                      </div>
+                      <div style="font-size: 12px; line-height: 1.45; color: #8a8275;">{{ s.note }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+
+                <div style="margin: 26px 4px 12px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #2f7d5b;">Bénéfices</div>
+                <div style="background: #ffffff; border: 1px solid #ece7dc; border-radius: 24px; padding: 4px 18px;">
+                  <sc-for list="{{ benefits }}" as="b" hint-placeholder-count="3">
+                    <div onClick="{{ b.open }}" style="padding: 13px 0; border-bottom: 1px solid {{ b.sep }}; display: flex; gap: 11px; cursor: pointer; align-items: flex-start;">
+                      <span style="width: 7px; height: 7px; border-radius: 50%; background: #2f7d5b; margin-top: 6px; flex-shrink: 0;"></span>
+                      <div style="flex: 1;"><span style="font-size: 13.5px; color: #211d17;">{{ b.title }}</span><div style="font-size: 12px; line-height: 1.45; color: #8a8275; margin-top: 2px;">{{ b.text }}</div></div>
+                      <svg width="7" height="11" viewBox="0 0 8 12" style="flex-shrink: 0; margin-top: 4px;"><path d="M1 1l5 5-5 5" fill="none" stroke="#cfc7b7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    </div>
+                  </sc-for>
+                </div>
+
+                <sc-if value="{{ hasRisks }}" hint-placeholder-val="{{ false }}">
+                  <div style="margin: 26px 4px 12px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #c0633f;">Points de vigilance</div>
+                  <div style="background: #ffffff; border: 1px solid #ece7dc; border-radius: 24px; padding: 4px 18px;">
+                    <sc-for list="{{ risks }}" as="r" hint-placeholder-count="2">
+                      <div onClick="{{ r.open }}" style="padding: 13px 0; border-bottom: 1px solid {{ r.sep }}; display: flex; gap: 11px; cursor: pointer; align-items: flex-start;">
+                        <span style="width: 7px; height: 7px; border-radius: 50%; background: #c0633f; margin-top: 6px; flex-shrink: 0;"></span>
+                        <div style="flex: 1;"><span style="font-size: 13.5px; color: #211d17;">{{ r.title }}</span><div style="font-size: 12px; line-height: 1.45; color: #8a8275; margin-top: 2px;">{{ r.text }}</div></div>
+                        <svg width="7" height="11" viewBox="0 0 8 12" style="flex-shrink: 0; margin-top: 4px;"><path d="M1 1l5 5-5 5" fill="none" stroke="#cfc7b7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                      </div>
+                    </sc-for>
+                  </div>
+                </sc-if>
+
+                <div style="margin: 26px 4px 12px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #6b6357;">Parcours digestif</div>
+                <div style="background: #ffffff; border: 1px solid #ece7dc; border-radius: 24px; padding: 20px 20px 8px;">
+                  <sc-for list="{{ timeline }}" as="t" hint-placeholder-count="5">
+                    <div style="display: flex; gap: 14px;">
+                      <div style="display: flex; flex-direction: column; align-items: center; flex-shrink: 0;">
+                        <span style="width: 11px; height: 11px; border-radius: 50%; background: #211d17; margin-top: 3px;"></span>
+                        <span style="width: 2px; flex: 1; background: {{ t.lineColor }}; margin: 4px 0;"></span>
+                      </div>
+                      <div style="padding-bottom: 18px; flex: 1;">
+                        <div style="display: flex; align-items: baseline; gap: 8px;">
+                          <span style="font-family: 'Newsreader', serif; font-size: 16px; color: #211d17;">{{ t.phase }}</span>
+                          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #a39a8b;">{{ t.time }}</span>
+                        </div>
+                        <div style="font-size: 12px; line-height: 1.5; color: #8a8275; margin-top: 4px;">{{ t.note }}</div>
+                        <sc-if value="{{ t.hasAbsorb }}" hint-placeholder-val="{{ false }}">
+                          <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;">
+                            <sc-for list="{{ t.absorb }}" as="a" hint-placeholder-count="2">
+                              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #2f7d5b; background: #eef4ef; border-radius: 100px; padding: 3px 9px;">{{ a }}</span>
+                            </sc-for>
+                          </div>
+                        </sc-if>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- COMPARER -->
+            <sc-if value="{{ isCompare }}" hint-placeholder-val="{{ false }}">
+              <div>
+                <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #6b6357; margin: 4px 4px 10px;">Comparer avec</div>
+                <div style="display: flex; gap: 8px; overflow-x: auto; padding: 2px 4px 12px; margin: 0 -4px;">
+                  <sc-for list="{{ compareChips }}" as="c" hint-placeholder-count="5">
+                    <div onClick="{{ c.pick }}" style="flex-shrink: 0; font-size: 12.5px; white-space: nowrap; padding: 8px 14px; border-radius: 100px; cursor: pointer; border: 1px solid {{ c.border }}; background: {{ c.bg }}; color: {{ c.fg }};">{{ c.name }}</div>
+                  </sc-for>
+                </div>
+
+                <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: #a39a8b; margin: 0 4px 10px;">À portions égales · {{ portionStr }}</div>
+                <div style="background: #ffffff; border: 1px solid #ece7dc; border-radius: 24px; padding: 20px; display: flex; align-items: flex-start; gap: 12px; box-shadow: 0 6px 20px rgba(33,29,23,0.04);">
+                  <div style="flex: 1; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 9px;">
+                    <div>{{ aRing }}</div>
+                    <div style="font-family: 'Newsreader', serif; font-size: 16px; line-height: 1.1;">{{ aName }}</div>
+                    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 1px; text-transform: uppercase; color: #b98a52;">A</div>
+                  </div>
+                  <div style="width: 1px; align-self: stretch; background: #ece7dc;"></div>
+                  <div style="flex: 1; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 9px;">
+                    <div>{{ bRing }}</div>
+                    <div style="font-family: 'Newsreader', serif; font-size: 16px; line-height: 1.1;">{{ bName }}</div>
+                    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 1px; text-transform: uppercase; color: #6b8e9e;">B</div>
+                  </div>
+                </div>
+
+                <div style="background: #ffffff; border: 1px solid #ece7dc; border-radius: 24px; padding: 8px 18px; margin-top: 12px;">
+                  <sc-for list="{{ compareRows }}" as="r" hint-placeholder-count="6">
+                    <div style="padding: 14px 0; border-bottom: 1px solid {{ r.sep }};">
+                      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: #a39a8b; margin-bottom: 9px;">{{ r.label }}</div>
+                      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 7px;">
+                        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; width: 64px; flex-shrink: 0; color: #211d17;">{{ r.aStr }}</span>
+                        <div style="flex: 1; height: 7px; border-radius: 100px; background: #f0ebe0; overflow: hidden;"><div style="height: 100%; border-radius: 100px; width: {{ r.aW }}; background: #b98a52;"></div></div>
+                      </div>
+                      <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; width: 64px; flex-shrink: 0; color: #211d17;">{{ r.bStr }}</span>
+                        <div style="flex: 1; height: 7px; border-radius: 100px; background: #f0ebe0; overflow: hidden;"><div style="height: 100%; border-radius: 100px; width: {{ r.bW }}; background: #6b8e9e;"></div></div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+          </div>
+
+          <!-- ── TAB BAR ── -->
+          <div style="flex-shrink: 0; display: flex; align-items: flex-start; justify-content: space-around; padding: 11px 14px 26px; background: rgba(250,249,244,0.92); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-top: 1px solid #e7e1d4; position: relative; z-index: 5;">
+            <div onClick="{{ goCompo }}" style="display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; color: {{ compoColor }};">
+              <svg width="22" height="22" viewBox="0 0 22 22"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"></circle><circle cx="11" cy="11" r="2.4" fill="currentColor"></circle></svg>
+              <span style="font-size: 9.5px; letter-spacing: 0.3px;">Composition</span>
+            </div>
+            <div onClick="{{ goTreeTab }}" style="display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; color: {{ treeColor }};">
+              <svg width="22" height="22" viewBox="0 0 22 22"><line x1="11" y1="6" x2="6" y2="15" stroke="currentColor" stroke-width="1.6"></line><line x1="11" y1="6" x2="16" y2="15" stroke="currentColor" stroke-width="1.6"></line><circle cx="11" cy="5" r="2.6" fill="currentColor"></circle><circle cx="5.5" cy="16" r="2.6" fill="currentColor"></circle><circle cx="16.5" cy="16" r="2.6" fill="currentColor"></circle></svg>
+              <span style="font-size: 9.5px; letter-spacing: 0.3px;">Molécules</span>
+            </div>
+            <div onClick="{{ goBody }}" style="display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; color: {{ bodyColor }};">
+              <svg width="22" height="22" viewBox="0 0 22 22"><circle cx="11" cy="5" r="3" fill="currentColor"></circle><rect x="6.5" y="9.5" width="9" height="9" rx="4.5" fill="currentColor"></rect></svg>
+              <span style="font-size: 9.5px; letter-spacing: 0.3px;">Corps</span>
+            </div>
+            <div onClick="{{ goCompare }}" style="display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; color: {{ compareColor }};">
+              <svg width="22" height="22" viewBox="0 0 22 22"><rect x="5" y="9" width="5" height="9" rx="1.4" fill="currentColor"></rect><rect x="12" y="5" width="5" height="13" rx="1.4" fill="currentColor"></rect></svg>
+              <span style="font-size: 9.5px; letter-spacing: 0.3px;">Comparer</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ── MOLECULE SHEET ── -->
+        <sc-if value="{{ detailOpen }}" hint-placeholder-val="{{ false }}">
+          <div onClick="{{ closeMol }}" style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; background: rgba(33,29,23,0.32); z-index: 30;"></div>
+          <div style="position: absolute; right: 0; bottom: 0; left: 0; z-index: 31; background: #f4f2ea; border-radius: 28px 28px 0 0; max-height: 86%; overflow-y: auto; box-shadow: 0 -10px 40px rgba(33,29,23,0.18);">
+            <div style="height: 6px;"></div>
+            <div style="width: 38px; height: 5px; border-radius: 100px; background: #d8d1c2; margin: 8px auto 0;"></div>
+            <div style="padding: 18px 22px 34px;">
+              <div style="height: 6px; width: 46px; border-radius: 100px; background: {{ sheetColor }}; margin-bottom: 16px;"></div>
+              <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;">
+                <div style="font-family: 'Newsreader', serif; font-size: 27px; line-height: 1.08;">{{ sheetName }}</div>
+                <div onClick="{{ closeMol }}" style="width: 32px; height: 32px; border-radius: 50%; background: #ece7dc; display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; margin-top: 4px;">
+                  <svg width="12" height="12" viewBox="0 0 12 12"><line x1="1.5" y1="1.5" x2="10.5" y2="10.5" stroke="#6b6357" stroke-width="1.7" stroke-linecap="round"></line><line x1="10.5" y1="1.5" x2="1.5" y2="10.5" stroke="#6b6357" stroke-width="1.7" stroke-linecap="round"></line></svg>
+                </div>
+              </div>
+              <sc-if value="{{ sheetHasFormula }}" hint-placeholder-val="{{ true }}"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 16px; color: #6b6357; margin-top: 8px; letter-spacing: 0.5px;">{{ sheetFormula }}</div></sc-if>
+
+              <div style="display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap;">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase; color: #6b6357; background: #ece7dc; border-radius: 100px; padding: 6px 11px;">{{ sheetFamily }}</span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase; color: {{ sheetValColor }}; border: 1px solid {{ sheetValColor }}; border-radius: 100px; padding: 6px 11px;">{{ sheetValLabel }}</span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase; color: #6b6357; background: #ece7dc; border-radius: 100px; padding: 6px 11px;">{{ sheetAbundance }}</span>
+              </div>
+
+              <div style="margin-top: 22px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: #a39a8b; margin-bottom: 8px;">Rôle dans l’organisme</div>
+              <div style="font-size: 14.5px; line-height: 1.6; color: #3a352d;">{{ sheetDetail }}</div>
+
+              <div style="margin-top: 22px; background: #ffffff; border: 1px solid #ece7dc; border-radius: 18px; padding: 15px 17px;">
+                <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: #a39a8b; margin-bottom: 5px;">Présent dans</div>
+                <div style="font-size: 14px; color: #211d17;">{{ sheetPresent }}</div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- ── SYSTEM SHEET ── -->
+        <sc-if value="{{ sysOpenB }}" hint-placeholder-val="{{ false }}">
+          <div onClick="{{ closeSys }}" style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; background: rgba(33,29,23,0.32); z-index: 30;"></div>
+          <div style="position: absolute; right: 0; bottom: 0; left: 0; z-index: 31; background: #f4f2ea; border-radius: 28px 28px 0 0; max-height: 86%; overflow-y: auto; box-shadow: 0 -10px 40px rgba(33,29,23,0.18);">
+            <div style="width: 38px; height: 5px; border-radius: 100px; background: #d8d1c2; margin: 14px auto 0;"></div>
+            <div style="padding: 18px 22px 34px;">
+              <div style="height: 6px; width: 46px; border-radius: 100px; background: {{ sysColor }}; margin-bottom: 16px;"></div>
+              <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;">
+                <div style="font-family: 'Newsreader', serif; font-size: 27px; line-height: 1.08;">{{ sysName }}</div>
+                <div onClick="{{ closeSys }}" style="width: 32px; height: 32px; border-radius: 50%; background: #ece7dc; display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; margin-top: 4px;">
+                  <svg width="12" height="12" viewBox="0 0 12 12"><line x1="1.5" y1="1.5" x2="10.5" y2="10.5" stroke="#6b6357" stroke-width="1.7" stroke-linecap="round"></line><line x1="10.5" y1="1.5" x2="1.5" y2="10.5" stroke="#6b6357" stroke-width="1.7" stroke-linecap="round"></line></svg>
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 10px; margin-top: 16px; flex-wrap: wrap;">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase; color: {{ sysColor }}; border: 1px solid {{ sysColor }}; border-radius: 100px; padding: 6px 11px;">{{ sysValLabel }}</span>
+                <div style="display: flex; align-items: center; gap: 7px;">
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: #a39a8b;">Intensité {{ sysIntensityLabel }}</span>
+                  <div style="display: flex; gap: 4px;">
+                    <sc-for list="{{ sysIntensity }}" as="d" hint-placeholder-count="3">
+                      <span style="width: 18px; height: 6px; border-radius: 3px; background: {{ d.color }};"></span>
+                    </sc-for>
+                  </div>
+                </div>
+              </div>
+
+              <div style="margin-top: 22px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: #a39a8b; margin-bottom: 8px;">Mécanisme d’action</div>
+              <div style="font-size: 14.5px; line-height: 1.6; color: #3a352d;">{{ sysNote }}</div>
+
+              <sc-if value="{{ sysHasDrivers }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top: 22px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: #a39a8b; margin-bottom: 10px;">Molécules impliquées</div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                  <sc-for list="{{ sysDrivers }}" as="m" hint-placeholder-count="3">
+                    <div onClick="{{ m.open }}" style="background: #ffffff; border: 1px solid #ece7dc; border-radius: 14px; padding: 12px 15px; display: flex; align-items: center; gap: 11px; cursor: pointer;">
+                      <span style="width: 6px; height: 26px; border-radius: 100px; flex-shrink: 0; background: {{ m.color }};"></span>
+                      <span style="flex: 1; font-size: 14px; color: #211d17;">{{ m.name }}</span>
+                      <svg width="7" height="11" viewBox="0 0 8 12" style="flex-shrink: 0;"><path d="M1 1l5 5-5 5" fill="none" stroke="#cfc7b7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <div style="margin-top: 22px; background: #ffffff; border: 1px solid #ece7dc; border-radius: 18px; padding: 15px 17px;">
+                <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: #a39a8b; margin-bottom: 5px;">Effet pour</div>
+                <div style="font-size: 14px; color: #211d17;">{{ foodName }} · portion de {{ portionStr }}</div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+      </sc-if>
+
+      <!-- ── SEARCH OVERLAY ── -->
+      <sc-if value="{{ searchOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; z-index: 40; background: #f4f2ea; display: flex; flex-direction: column;">
+          <div style="padding: 54px 16px 12px; display: flex; align-items: center; gap: 12px;">
+            <div style="flex: 1; display: flex; align-items: center; gap: 9px; background: #ffffff; border: 1px solid #e7e1d4; border-radius: 14px; padding: 11px 14px;">
+              <svg width="16" height="16" viewBox="0 0 18 18"><circle cx="7.5" cy="7.5" r="5.6" fill="none" stroke="#a39a8b" stroke-width="1.7"></circle><line x1="11.7" y1="11.7" x2="16" y2="16" stroke="#a39a8b" stroke-width="1.7" stroke-linecap="round"></line></svg>
+              <input value="{{ query }}" onInput="{{ onQuery }}" placeholder="Rechercher un aliment…" style="flex: 1; border: none; outline: none; background: transparent; font-family: 'IBM Plex Sans', sans-serif; font-size: 15px; color: #211d17;">
+            </div>
+            <div onClick="{{ closeSearch }}" style="font-size: 14.5px; color: #2f7d5b; cursor: pointer; flex-shrink: 0;">Fermer</div>
+          </div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: #a39a8b; padding: 8px 22px 6px;">{{ resultLabel }}</div>
+          <div style="flex: 1; overflow-y: auto; padding: 0 16px 24px;">
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <sc-for list="{{ results }}" as="f" hint-placeholder-count="8">
+                <div onClick="{{ f.pick }}" style="background: #ffffff; border: 1px solid #ece7dc; border-radius: 16px; padding: 14px 16px; display: flex; align-items: center; gap: 13px; cursor: pointer;">
+                  <span style="width: 38px; height: 38px; border-radius: 11px; flex-shrink: 0; background: {{ f.swatch }}; display: flex; align-items: center; justify-content: center; font-family: 'Newsreader', serif; font-size: 17px; color: #fff;">{{ f.initial }}</span>
+                  <div style="flex: 1; min-width: 0;">
+                    <div style="font-size: 15px; color: #211d17;">{{ f.name }}</div>
+                    <div style="font-size: 11.5px; color: #a39a8b; margin-top: 1px;">{{ f.cat }} · {{ f.kcalStr }} kcal</div>
+                  </div>
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: {{ f.scoreColor }}; flex-shrink: 0;">{{ f.scoreStr }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+    </div>
+
+  </x-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { tab: 'compo', foodId: 'chocolat-noir', compareB: 'puree-amande', searchOpen: false, query: '', detail: null, sysOpen: null, expanded: {}, portion: 100, ready: false };
+
+  componentDidMount() {
+    const load = () => { if (window.FOOD_DB) { this.db = window.FOOD_DB; this.setState({ ready: true }); return true; } return false; };
+    if (!load()) { this._iv = setInterval(() => { if (load()) clearInterval(this._iv); }, 30); }
+  }
+  componentWillUnmount() { if (this._iv) clearInterval(this._iv); }
+
+  valColor(v) { return ({ b: '#2f7d5b', r: '#c0633f', mixed: 'oklch(0.70 0.11 72)', n: '#8a8275' })[v] || '#8a8275'; }
+  valHalo(v) { return ({ b: 'rgba(47,125,91,0.18)', r: 'rgba(192,99,63,0.18)', mixed: 'rgba(196,150,70,0.18)', n: 'rgba(138,130,117,0.16)' })[v] || 'rgba(138,130,117,0.16)'; }
+  valLabel(v) { return ({ b: 'Bénéfique', r: 'À surveiller', mixed: 'Effet mixte', n: 'Neutre' })[v] || 'Neutre'; }
+  scoreColor(s) { return s >= 75 ? '#2f7d5b' : s >= 66 ? 'oklch(0.70 0.12 70)' : '#c0633f'; }
+  scoreLabel(s) { return s >= 78 ? 'Profil très favorable' : s >= 72 ? 'Profil favorable' : s >= 66 ? 'Profil correct' : 'À consommer avec modération'; }
+  fmt(n) { const v = Number(n); const s = (Number.isInteger(v) ? v : v.toFixed(1)).toString(); return s.replace('.', ','); }
+
+  fmtQty(qty, factor) {
+    if (!qty) return '';
+    if (qty.qual != null) return qty.qual;
+    const v = qty.n * factor;
+    const dec = qty.unit === 'g' ? 1 : (v < 10 ? 1 : 0);
+    return (qty.approx ? '≈ ' : '') + v.toFixed(dec).replace('.', ',') + ' ' + qty.unit;
+  }
+
+  statusFor(info, factor) {
+    if (!info) return { valence: 'n', label: '' };
+    const d = info.dyn;
+    if (d) {
+      if (d.type === 'sucres') { const g = d.base * factor; const v = g >= 18 ? 'r' : g >= 7 ? 'mixed' : 'n'; return { valence: v, label: v === 'r' ? 'À surveiller' : v === 'mixed' ? 'À modérer' : 'Quantité modérée' }; }
+      if (d.type === 'sat') { const g = d.base * factor; const v = g >= 6 ? 'r' : g >= 2.5 ? 'mixed' : 'n'; return { valence: v, label: v === 'r' ? 'À surveiller' : v === 'mixed' ? 'À modérer' : 'Sans excès' }; }
+      if (d.type === 'micro') { const p = d.basePct * factor; return { valence: 'b', label: p >= 100 ? 'Apport excellent' : p >= 50 ? 'Bonne source' : 'Source d’appoint' }; }
+    }
+    return { valence: info.valence, label: this.valLabel(info.valence) };
+  }
+
+  findMol(food, name) { return food.molecules.find(m => m.name === name) || null; }
+
+  systemDrivers(food, sysName) {
+    const KW = {
+      cardio: ['vascul', 'endothél', 'monoxyde', 'cholestérol', 'ldl', 'lipid', 'press', 'nitrat', 'oléique', 'flavan', 'stérol', 'lycopèn', 'citrullin', 'potassium', 'oméga', 'linol', 'épicatéch'],
+      nerv: ['nerveux', 'vigilance', 'humeur', 'dopamine', 'sérotonin', 'adénosine', 'cogniti', 'cérébr', 'neuro', 'stimul', 'théobromine', 'caféine', 'phénylé'],
+      digest: ['fibre', 'microbiote', 'prébiot', 'transit', 'digest', 'ballonn', 'spasm', 'tanin', 'astringen', 'ferment', 'butyrate', 'fodmap', 'gluten', 'glucosinol', 'anéthol'],
+      metab: ['glyc', 'insulin', 'énerg', 'calor', 'métabol', 'amidon', 'sucre', 'hypoglyc', 'chlorogén'],
+      muscle: ['muscul', 'osseu', 'minéralis', 'calcium', 'magnésium', 'phosphore', 'contract', 'vitamine k', 'squelet'],
+      immun: ['immun', 'défens', 'vitamine c', 'sélénium'],
+      peau: ['collagèn', 'peau', 'tissu', 'cicatris', 'caroténo'],
+      yeux: ['rétine', 'macula', 'lutéine', 'zéaxanth', 'vision'],
+      hydrat: ['eau', 'hydrat', 'potassium'],
+      renal: ['oxalat', 'réna', 'calcul'],
+      hormonal: ['œstrog', 'hormon', 'isoflavone', 'phyto', 'génist']
+    };
+    const n = sysName.toLowerCase();
+    let key = 'metab';
+    if (/cardio|sang/.test(n)) key = 'cardio';
+    else if (/nerv|cogn/.test(n)) key = 'nerv';
+    else if (/digest/.test(n)) key = 'digest';
+    else if (/muscle|squelet/.test(n)) key = 'muscle';
+    else if (/immun/.test(n)) key = 'immun';
+    else if (/peau|tissu/.test(n)) key = 'peau';
+    else if (/yeux/.test(n)) key = 'yeux';
+    else if (/hydrat/.test(n)) key = 'hydrat';
+    else if (/rén/.test(n)) key = 'renal';
+    else if (/hormon/.test(n)) key = 'hormonal';
+    const kws = KW[key] || [];
+    const scored = food.molecules.map(m => {
+      const hay = (m.name + ' ' + (m.role || '') + ' ' + (m.detail || '')).toLowerCase();
+      let sc = 0; kws.forEach(k => { if (hay.indexOf(k) >= 0) sc++; });
+      return { m, sc };
+    }).filter(x => x.sc > 0).sort((a, b) => b.sc - a.sc);
+    return scored.slice(0, 4).map(x => x.m);
+  }
+
+  ring(score, size) {
+    const c = this.scoreColor(score), th = Math.round(size * 0.11);
+    return React.createElement('div', { style: { position: 'relative', width: size, height: size, borderRadius: '50%', background: `conic-gradient(${c} 0 ${score}%, #e9e4d8 ${score}% 100%)`, flexShrink: 0 } },
+      React.createElement('div', { style: { position: 'absolute', top: th, left: th, right: th, bottom: th, borderRadius: '50%', background: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' } },
+        React.createElement('div', { style: { fontFamily: 'Newsreader, serif', fontSize: Math.round(size * 0.4), fontWeight: 500, color: '#211d17', lineHeight: 1 } }, score),
+        React.createElement('div', { style: { fontFamily: '"IBM Plex Mono", monospace', fontSize: size > 80 ? 9 : 8, letterSpacing: 1, color: '#a39a8b', marginTop: 2 } }, '/ 100')
+      )
+    );
+  }
+
+  donut(segs, size) {
+    const th = Math.round(size * 0.17); let acc = 0;
+    const stops = segs.map(s => { const a = acc; acc += s.pct; return `${s.color} ${a.toFixed(2)}% ${acc.toFixed(2)}%`; }).join(', ');
+    return React.createElement('div', { style: { position: 'relative', width: size, height: size, borderRadius: '50%', background: `conic-gradient(${stops})`, flexShrink: 0 } },
+      React.createElement('div', { style: { position: 'absolute', top: th, left: th, right: th, bottom: th, borderRadius: '50%', background: '#fff' } })
+    );
+  }
+
+  swatchFor(fam) { const m = { lipides: 'oklch(0.74 0.10 80)', glucides: 'oklch(0.72 0.12 62)', proteines: 'oklch(0.58 0.11 32)', micro: 'oklch(0.60 0.07 248)', bioactifs: 'oklch(0.56 0.11 330)' }; return m[fam] || 'oklch(0.64 0.08 132)'; }
+
+  flatten(nodes, depth, out) {
+    const factor = this.state.portion / 100;
+    nodes.forEach(n => {
+      const has = n.children && n.children.length > 0;
+      const exp = !!this.state.expanded[n.id];
+      const stt = this.statusFor(n.info, factor);
+      const flag = stt.valence === 'r' || stt.valence === 'mixed';
+      out.push({
+        id: n.id, label: n.label, value: this.fmtQty(n.qty, factor), color: this.db.families[n.fam].color,
+        halo: flag ? this.valHalo(stt.valence) : 'transparent',
+        pad: (14 + depth * 18) + 'px', fontSize: depth === 0 ? '15px' : '13.5px',
+        chevOpacity: has ? 1 : 0, chevTransform: exp ? 'rotate(90deg)' : 'rotate(0deg)',
+        openInfo: () => this.setState({ detail: n.info }),
+        toggle: has ? (e) => { if (e && e.stopPropagation) e.stopPropagation(); this.setState(s => ({ expanded: Object.assign({}, s.expanded, { [n.id]: !s.expanded[n.id] }) })); } : null
+      });
+      if (has && exp) this.flatten(n.children, depth + 1, out);
+    });
+    return out;
+  }
+
+  openByName(name) { const f = this.db.foods[this.state.foodId]; const m = f.molecules.find(x => x.name === name); if (m) this.setState({ detail: m }); }
+
+  bodyLoc(name) {
+    const n = name.toLowerCase();
+    if (/nerv|cogn|cervea/.test(n)) return { top: '8%', left: '50%' };
+    if (/cardio|sang/.test(n)) return { top: '33%', left: '50%' };
+    if (/immun|tissu|peau/.test(n)) return { top: '21%', left: '74%' };
+    if (/yeux/.test(n)) return { top: '7%', left: '66%' };
+    if (/muscle|squelet/.test(n)) return { top: '74%', left: '40%' };
+    if (/hydrat/.test(n)) return { top: '46%', left: '26%' };
+    return { top: '53%', left: '50%' };
+  }
+
+  renderVals() {
+    const ink = '#211d17', ink3 = '#a39a8b';
+    if (!this.state.ready || !this.db) {
+      return { loading: true, ready: false, searchOpen: false, detailOpen: false, sysOpenB: false, sysIntensity: [], sysDrivers: [], sysHasDrivers: false,
+        isCompo: true, isTree: false, isBody: false, isCompare: false, hasRisks: false,
+        foodName: '', foodCat: '', foodPortion: '100 g', portionStr: '100 g',
+        macroLegend: [], micros: [], topMolecules: [], treeRows: [], bodyDots: [], bodySystems: [], benefits: [], risks: [], timeline: [], compareChips: [], compareRows: [], results: [],
+        compoColor: ink, treeColor: ink3, bodyColor: ink3, compareColor: ink3 };
+    }
+    const db = this.db, fams = db.families, st = this.state;
+    const food = db.foods[st.foodId];
+    const factor = st.portion / 100;
+
+    // macros
+    const segDefs = [
+      { key: 'lipides', label: 'Lipides', g: food.macros.lip },
+      { key: 'glucides', label: 'Glucides', g: food.macros.gluc },
+      { key: 'fibres', label: 'Fibres', g: food.macros.fib },
+      { key: 'proteines', label: 'Protéines', g: food.macros.prot },
+      { key: 'autres', label: 'Eau & autres', g: food.macros.eau + food.macros.autres }
+    ].filter(s => s.g > 0);
+    const tot = segDefs.reduce((a, s) => a + s.g, 0) || 1;
+    const segs = segDefs.map(s => ({ color: s.key === 'autres' ? '#dcd6c8' : fams[s.key].color, pct: s.g / tot * 100, label: s.label, g: s.g }));
+    const macroLegend = segs.map(s => ({ color: s.color, label: s.label, gramStr: this.fmt(s.g * factor) + ' g', pctStr: Math.round(s.pct) + ' %' }));
+
+    // tabs
+    const tc = (t) => st.tab === t ? ink : ink3;
+
+    return {
+      loading: false, ready: true,
+      searchOpen: st.searchOpen,
+      isCompo: st.tab === 'compo', isTree: st.tab === 'tree', isBody: st.tab === 'body', isCompare: st.tab === 'compare',
+      compoColor: tc('compo'), treeColor: tc('tree'), bodyColor: tc('body'), compareColor: tc('compare'),
+
+      foodName: food.name, foodCat: food.cat, foodPortion: st.portion + ' g', portionStr: st.portion + ' g',
+      kcalStr: Math.round(food.kcal * factor), molCountStr: food.molecules.length,
+      scoreRing: this.ring(food.score, 92), scoreLabel: this.scoreLabel(food.score), tagline: food.tagline || 'Profil nutritionnel détaillé ci-dessous.',
+      macroDonut: this.donut(segs, 104), macroLegend,
+
+      micros: food.micros.map(mi => { const p = mi.pct * factor; return { name: mi.name, valStr: this.fmtQty({ n: mi.val, unit: mi.unit }, factor), pctStr: Math.round(p) + ' %', barW: Math.min(p, 100) + '%', color: fams.micro.color }; }),
+
+      topMolecules: food.molecules.slice(0, 6).map(m => ({
+        name: m.name, formula: m.formula, family: m.family, abundance: this.fmtQty(m.qty, factor),
+        color: fams[m.fam].color, valColor: this.valColor(m.valence), valLabel: this.valLabel(m.valence),
+        open: () => this.setState({ detail: m })
+      })),
+
+      treeRows: this.flatten(food.tree, 0, []),
+
+      bodyDots: (() => {
+        const raw = food.systems.map(s => { const l = this.bodyLoc(s.name); return { top: l.top, left: l.left, color: this.valColor(s.valence), halo: this.valHalo(s.valence), open: () => this.setState({ sysOpen: s, detail: null }) }; });
+        const byTop = {}; raw.forEach(d => { (byTop[d.top] = byTop[d.top] || []).push(d); });
+        Object.keys(byTop).forEach(k => { const g = byTop[k]; const n = g.length; if (n > 1) g.forEach((d, i) => { d.left = (50 + (i - (n - 1) / 2) * 26) + '%'; }); });
+        return raw;
+      })(),
+      bodySystems: food.systems.map((s, i) => ({
+        name: s.name, note: s.note, sep: i === food.systems.length - 1 ? 'transparent' : '#f0ebe0',
+        blocks: [0, 1, 2].map(k => ({ color: k < s.intensity ? this.valColor(s.valence) : '#ece7dc' })),
+        open: () => this.setState({ sysOpen: s, detail: null })
+      })),
+      benefits: food.benefits.map((b, i) => { const m = this.findMol(food, b.title); return { title: b.title, text: b.text, sep: i === food.benefits.length - 1 ? 'transparent' : '#f0ebe0', open: m ? () => this.setState({ detail: m, sysOpen: null }) : () => {} }; }),
+      ...(() => {
+        const dyn = [];
+        const sg = food.sucres * factor; if (sg >= 18) dyn.push({ title: 'Sucres', text: 'Charge glycémique élevée pour cette portion (' + this.fmt(sg) + ' g de sucres).',
+          detail: { name: 'Sucres', formula: '—', fam: 'glucides', family: 'Glucides', valence: 'r', qty: { n: food.sucres, unit: 'g' }, dyn: { type: 'sucres', base: food.sucres }, detail: 'Sucres simples (glucose, fructose, saccharose) apportant une énergie rapide mais élevant la glycémie. À cette portion, l’apport devient notable — à modérer chez les profils insulino-résistants.' } });
+        const sf = food.sat * factor; if (sf >= 6) dyn.push({ title: 'Acides gras saturés', text: 'Apport élevé en saturés pour cette portion (' + this.fmt(sf) + ' g).',
+          detail: { name: 'Acides gras saturés', formula: '—', fam: 'lipides', family: 'Lipides', valence: 'r', qty: { n: food.sat, unit: 'g' }, dyn: { type: 'sat', base: food.sat }, detail: 'Acides gras saturés. Au-delà de ~6 g par prise, leur effet sur le cholestérol LDL devient à surveiller (l’impact réel dépend du type — l’acide stéarique reste neutre).' } });
+        const kc = food.kcal * factor; if (kc >= 350) dyn.push({ title: 'Densité calorique', text: 'Portion énergétique (' + Math.round(kc) + ' kcal) à intégrer dans la ration quotidienne.',
+          detail: { name: 'Densité calorique', formula: '—', fam: 'lipides', family: 'Apport énergétique', valence: 'r', qty: { n: food.kcal, unit: 'kcal' }, detail: 'Cet aliment est dense en énergie. La portion analysée représente une fraction notable des besoins journaliers (~2000 kcal) — à équilibrer sur la journée.' } });
+        const all = dyn.concat(food.risks.map(r => ({ title: r.title, text: r.text, detail: this.findMol(food, r.title) })));
+        return { hasRisks: all.length > 0, risks: all.map((r, i) => ({ title: r.title, text: r.text, sep: i === all.length - 1 ? 'transparent' : '#f0ebe0', open: r.detail ? () => this.setState({ detail: r.detail, sysOpen: null }) : () => {} })) };
+      })(),
+      timeline: food.timeline.map((t, i) => ({ phase: t.phase, time: t.time, note: t.note, absorb: t.absorb || [], hasAbsorb: !!(t.absorb && t.absorb.length), lineColor: i === food.timeline.length - 1 ? 'transparent' : '#e7e1d4' })),
+
+      // compare
+      compareChips: db.order.filter(id => id !== st.foodId).map(id => {
+        const f = db.foods[id]; const active = id === st.compareB;
+        return { name: f.name, pick: () => this.setState({ compareB: id }),
+          bg: active ? '#211d17' : '#ffffff', fg: active ? '#ffffff' : '#6b6357', border: active ? '#211d17' : '#e7e1d4' };
+      }),
+      ...(() => {
+        const A = food; const bId = st.compareB === st.foodId ? db.order.find(x => x !== st.foodId) : st.compareB; const B = db.foods[bId];
+        const mk = (label, a, b, unit, max) => { const m = max || (Math.max(a, b) * 1.15) || 1;
+          return { label, aStr: this.fmt(a) + (unit ? ' ' + unit : ''), bStr: this.fmt(b) + (unit ? ' ' + unit : ''), aW: (a / m * 100) + '%', bW: (b / m * 100) + '%' }; };
+        const rows = [
+          mk('Indice santé', A.score, B.score, '/100', 100),
+          mk('Calories', Math.round(A.kcal * factor), Math.round(B.kcal * factor), 'kcal'),
+          mk('Protéines', A.macros.prot * factor, B.macros.prot * factor, 'g'),
+          mk('Lipides', A.macros.lip * factor, B.macros.lip * factor, 'g'),
+          mk('Glucides', A.macros.gluc * factor, B.macros.gluc * factor, 'g'),
+          mk('Fibres', A.macros.fib * factor, B.macros.fib * factor, 'g')
+        ].map((r, i) => Object.assign(r, { sep: i === 5 ? 'transparent' : '#f0ebe0' }));
+        return { aName: A.name, bName: B.name, aRing: this.ring(A.score, 62), bRing: this.ring(B.score, 62), compareRows: rows };
+      })(),
+
+      // molecule sheet
+      ...(() => {
+        const d = st.detail;
+        if (!d) return { detailOpen: false, sheetName: '', sheetFormula: '', sheetHasFormula: false, sheetFamily: '', sheetColor: '#8a8275', sheetValColor: '#8a8275', sheetValLabel: '', sheetAbundance: '', sheetDetail: '', sheetPresent: '' };
+        const hasF = !!(d.formula && d.formula !== '—');
+        const stt = this.statusFor(d, factor);
+        const ab = this.fmtQty(d.qty, factor);
+        const pctStr = (d.pct != null) ? (' · ' + Math.round(d.pct * factor) + ' % AJR') : '';
+        const present = food.name + ' · ' + ab + ' pour ' + st.portion + ' g' + pctStr;
+        return { detailOpen: true, sheetName: d.name, sheetFormula: d.formula, sheetHasFormula: hasF, sheetFamily: d.family, sheetColor: (fams[d.fam] || { color: '#8a8275' }).color, sheetValColor: this.valColor(stt.valence), sheetValLabel: stt.label, sheetAbundance: ab, sheetDetail: d.detail, sheetPresent: present };
+      })(),
+
+      // system sheet
+      ...(() => {
+        const s = st.sysOpen;
+        if (!s) return { sysOpenB: false, sysName: '', sysColor: '#8a8275', sysValLabel: '', sysIntensityLabel: '', sysNote: '', sysIntensity: [], sysDrivers: [], sysHasDrivers: false };
+        const drivers = this.systemDrivers(food, s.name);
+        return {
+          sysOpenB: true, sysName: s.name, sysColor: this.valColor(s.valence), sysValLabel: this.valLabel(s.valence),
+          sysIntensityLabel: ['', 'modérée', 'notable', 'forte'][s.intensity] || '',
+          sysNote: s.note,
+          sysIntensity: [0, 1, 2].map(k => ({ color: k < s.intensity ? this.valColor(s.valence) : '#e3ddcf' })),
+          sysDrivers: drivers.map(m => ({ name: m.name, color: fams[m.fam].color, open: () => this.setState({ detail: m, sysOpen: null }) })),
+          sysHasDrivers: drivers.length > 0
+        };
+      })(),
+
+      // search
+      query: st.query,
+      results: db.order.map(id => db.foods[id]).filter(f => { const q = st.query.trim().toLowerCase(); return !q || f.name.toLowerCase().includes(q) || f.cat.toLowerCase().includes(q); }).map(f => ({
+        name: f.name, cat: f.cat, kcalStr: f.kcal, scoreStr: f.score, scoreColor: this.scoreColor(f.score),
+        initial: f.name.charAt(0).toUpperCase(), swatch: this.swatchFor((f.molecules[0] || {}).fam),
+        pick: () => this.setState({ foodId: f.id, searchOpen: false, query: '', tab: 'compo', detail: null, sysOpen: null, expanded: {} })
+      })),
+      resultLabel: (() => { const n = db.order.filter(id => { const f = db.foods[id]; const q = st.query.trim().toLowerCase(); return !q || f.name.toLowerCase().includes(q) || f.cat.toLowerCase().includes(q); }).length; return st.query.trim() ? n + ' résultat' + (n > 1 ? 's' : '') : 'Tous les aliments'; })(),
+
+      // handlers
+      openSearch: () => this.setState({ searchOpen: true }),
+      closeSearch: () => this.setState({ searchOpen: false, query: '' }),
+      onQuery: (e) => this.setState({ query: e.target.value }),
+      closeMol: () => this.setState({ detail: null }),
+      closeSys: () => this.setState({ sysOpen: null }),
+      goCompo: () => this.setState({ tab: 'compo', detail: null, sysOpen: null }),
+      goTree: () => this.setState({ tab: 'tree', detail: null, sysOpen: null }),
+      goTreeTab: () => this.setState({ tab: 'tree', detail: null, sysOpen: null }),
+      goBody: () => this.setState({ tab: 'body', detail: null, sysOpen: null }),
+      goCompare: () => this.setState({ tab: 'compare', detail: null, sysOpen: null }),
+      portionInc: () => this.setState(s => ({ portion: Math.min(500, s.portion + 10) })),
+      portionDec: () => this.setState(s => ({ portion: Math.max(10, s.portion - 10) }))
+    };
+  }
+}
+</script>
+</body>
+</html>

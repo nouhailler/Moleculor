@@ -1,0 +1,99 @@
+/* Moleculor — global styles. Tokens live in src/theme/tokens.ts; this file only
+   holds resets, fonts, the device frame and the few keyframes used by overlays. */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  /* Outer beige gradient from the design tokens — the "bezel" backdrop. */
+  background: radial-gradient(130% 120% at 50% -10%, #f1eee5 0%, #e6e1d6 58%, #dad4c6 100%);
+  color: #211d17;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* Mobile viewport: real app frame is ~390x844pt (the iPhone bezel is ignored). */
+.device {
+  position: relative;
+  width: 390px;
+  height: 844px;
+  max-height: calc(100vh - 32px);
+  background: #f4f2ea;
+  color: #211d17;
+  overflow: hidden;
+  border-radius: 44px;
+  box-shadow: 0 30px 80px rgba(33, 29, 23, 0.18);
+}
+
+/* Hide scrollbars to match the prototype's clean scroll surfaces. */
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+* {
+  scrollbar-width: none;
+}
+
+/* Discreet native-feeling transitions (no aggressive animation). */
+@keyframes molSheet {
+  from {
+    transform: translateY(102%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes molOv {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes molFade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+input {
+  font-family: inherit;
+}
+
+@keyframes molSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.mol-spinner {
+  width: 15px;
+  height: 15px;
+  border: 2px solid rgba(47, 125, 91, 0.25);
+  border-top-color: #2f7d5b;
+  border-radius: 50%;
+  animation: molSpin 0.7s linear infinite;
+  flex-shrink: 0;
+}
