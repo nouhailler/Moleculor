@@ -53,6 +53,15 @@ par id contre les aliments intégrés et existants, et fait repasser chaque *spe
 un autre appareil, et profite des améliorations futures de la dérivation. La clé API
 n'est jamais incluse dans l'export.
 
+### 7. La comparaison fine relit l'arbre dérivé
+
+L'écran Comparer déplie Protéines / Lipides / Glucides en sous-types. Les classes
+d'acides gras (`sat`/`mono`/`poly`) et les sucres (`sucres`/`amidon`) viennent des
+champs directs de `Food` ; les **acides aminés essentiels** sont lus depuis les nœuds
+`aa:` de l'arbre déjà construit par `buildTree`. Conséquence : la décomposition marche
+aussi pour les aliments générés par l'IA, sans calcul dédié. Un marqueur **Δ** indique
+l'aliment dominant par sous-type.
+
 ## 🧬 Modèle de données
 
 Défini dans `app/src/data/types.ts`. Pièces principales :

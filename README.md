@@ -119,15 +119,19 @@ Dans **⚙ Paramètres → Sauvegarde des aliments** : **Exporter** télécharge
 
 L'app embarque un `manifest.webmanifest`, une icône maskable et les balises `apple-touch-icon`. Une fois déployée (HTTPS), « Ajouter à l'écran d'accueil » l'installe en plein écran avec l'icône molécule. 🧬
 
+L'icône source est `app/public/icon.svg` ; les PNG (192 / 512 / apple-touch) se régénèrent avec `node app/rasterize.mjs` après modification.
+
 ### Déployer sur Netlify
 
-Le `netlify.toml` à la racine est déjà configuré (base `app/`, publish `app/dist`, fallback SPA) :
+Le `netlify.toml` à la racine est déjà configuré (base `app/`, fallback SPA, en-têtes de cache) :
 
 | Réglage | Valeur |
 |---|---|
 | Base directory | `app` |
 | Build command | `npm run build` |
-| Publish directory | `app/dist` |
+| Publish directory | `dist` |
+
+> ℹ️ `command` et `publish` sont résolus **relativement à `base`** : le répertoire publié est donc `dist` (et non `app/dist`, qui pointerait vers `app/app/dist`).
 
 → Connecter le dépôt sur Netlify, ou `netlify deploy --prod`.
 

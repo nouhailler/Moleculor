@@ -29,6 +29,8 @@ adhère au [versionnage sémantique](https://semver.org/lang/fr/).
 
 - **Comparer** : sélection de B robuste si l'aliment n'existe plus / vaut A (repli
   automatique sur un autre aliment).
+- **Déploiement Netlify** : `publish` est résolu relativement à `base`, donc
+  `app/dist` pointait vers `app/app/dist` (introuvable) → corrigé en `dist`.
 
 ## [0.1.0] — 2026-06-16
 
