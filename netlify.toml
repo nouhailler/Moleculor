@@ -1,8 +1,9 @@
 # Netlify deployment — the app lives in the app/ subdirectory.
+# `command` and `publish` are resolved relative to `base`, so publish is just "dist".
 [build]
   base = "app"
   command = "npm run build"
-  publish = "app/dist"
+  publish = "dist"
 
 [build.environment]
   NODE_VERSION = "20"
