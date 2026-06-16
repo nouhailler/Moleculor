@@ -38,13 +38,45 @@ On choisit un aliment, on ajuste la **portion** (10–500 g), et toutes les vale
 | ⏳ | **Génération en arrière-plan** | Badge flottant « IA » avec sablier animé + décompte en secondes, navigation jamais bloquée |
 | 📱 | **PWA installable** | Icône d'app, plein écran, prête pour Netlify |
 
-## 📸 Aperçu
+## 📸 Aperçu des écrans
+
+### 🔬 Composition
 
 <div align="center">
 
-| Composition | Arborescence | Corps | Comparer |
+| Anneaux & macros | Micros & molécules |
+|:---:|:---:|
+| <img src="design_handoff_moleculor/screenshots/01-composition.png" width="220" /> | <img src="design_handoff_moleculor/screenshots/02-composition-micros-molecules.png" width="220" /> |
+
+</div>
+
+### 🌳 Arborescence
+
+<div align="center">
+
+| Familles | Acides aminés dépliés |
+|:---:|:---:|
+| <img src="design_handoff_moleculor/screenshots/03-arborescence-familles.png" width="220" /> | <img src="design_handoff_moleculor/screenshots/04-arborescence-acides-amines.png" width="220" /> |
+
+</div>
+
+### 🫀 Corps
+
+<div align="center">
+
+| Silhouette | Interactions | Bénéfices |
+|:---:|:---:|:---:|
+| <img src="design_handoff_moleculor/screenshots/05-corps-silhouette.png" width="220" /> | <img src="design_handoff_moleculor/screenshots/06-corps-interactions.png" width="220" /> | <img src="design_handoff_moleculor/screenshots/07-corps-benefices.png" width="220" /> |
+
+</div>
+
+### ⚖️ Comparer · 🔍 Recherche · 🔎 Fiches détaillées
+
+<div align="center">
+
+| Comparer | Recherche | Fiche molécule | Fiche système |
 |:---:|:---:|:---:|:---:|
-| <img src="design_handoff_moleculor/screenshots/01-composition.png" width="200" /> | <img src="design_handoff_moleculor/screenshots/03-arborescence-familles.png" width="200" /> | <img src="design_handoff_moleculor/screenshots/07-corps-benefices.png" width="200" /> | <img src="design_handoff_moleculor/screenshots/10-comparer.png" width="200" /> |
+| <img src="design_handoff_moleculor/screenshots/10-comparer.png" width="200" /> | <img src="design_handoff_moleculor/screenshots/11-recherche.png" width="200" /> | <img src="design_handoff_moleculor/screenshots/08-fiche-molecule.png" width="200" /> | <img src="design_handoff_moleculor/screenshots/09-fiche-systeme.png" width="200" /> |
 
 </div>
 
