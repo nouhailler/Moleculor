@@ -29,6 +29,8 @@ export default function App() {
   const [foodId, setFoodId] = useState('chocolat-noir');
   const [compareB, setCompareB] = useState('puree-amande');
   const [searchOpen, setSearchOpen] = useState(false);
+  // Which target the search overlay fills: the main food (A) or the compare food (B).
+  const [searchMode, setSearchMode] = useState<'main' | 'compareB'>('main');
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settings, setSettings] = useState<OpenRouterSettings>(loadSettings);
   const [query, setQuery] = useState('');
@@ -67,6 +69,25 @@ export default function App() {
     closeOverlays();
   };
 
+  const openSearch = (mode: 'main' | 'compareB') => {
+    setSearchMode(mode);
+    setQuery('');
+    setSearchOpen(true);
+  };
+  const closeSearch = () => {
+    setSearchOpen(false);
+    setQuery('');
+    setSearchMode('main');
+  };
+  const pickFromSearch = (id: string) => {
+    if (searchMode === 'compareB') {
+      setCompareB(id);
+      closeSearch();
+    } else {
+      pickFood(id);
+    }
+  };
+
   const saveSettingsAndClose = (s: OpenRouterSettings) => {
     setSettings(s);
     saveSettings(s);
@@ -76,14 +97,15 @@ export default function App() {
   /** Kick off generation in the background: close the search so the user keeps
       navigating, track progress in a floating badge, and add the food on success
       without forcing a navigation (the badge is tappable to open it). */
-  const startGenerate = (q: string) => {
+  const startGenerate = (q: string, target: 'main' | 'compareB' = 'main') => {
     const job: GenJob = { id: Date.now(), query: q, startedAt: Date.now(), status: 'running' };
     setGenJob(job);
-    setSearchOpen(false);
-    setQuery('');
+    closeSearch();
     generateFoodSpec(q, settings, db.order)
       .then((spec) => {
         addFood(spec);
+        // When generated from the Compare search, slot it straight into B.
+        if (target === 'compareB') setCompareB(spec.id);
         setGenJob({ ...job, status: 'done', finishedAt: Date.now(), foodId: spec.id, foodName: spec.name });
       })
       .catch((e) => {
@@ -98,7 +120,7 @@ export default function App() {
           foodName={food.name}
           foodCat={food.cat}
           portion={portion}
-          onOpenSearch={() => setSearchOpen(true)}
+          onOpenSearch={() => openSearch('main')}
           onOpenSettings={() => setSettingsOpen(true)}
           onPortionInc={() => setPortion((p) => Math.min(PORTION_MAX, p + PORTION_STEP))}
           onPortionDec={() => setPortion((p) => Math.max(PORTION_MIN, p - PORTION_STEP))}
@@ -115,7 +137,7 @@ export default function App() {
             <BodyScreen food={food} factor={factor} onOpenDetail={openDetail} onOpenSystem={openSystem} />
           )}
           {tab === 'compare' && (
-            <CompareScreen food={food} db={db} factor={factor} portion={portion} compareB={compareB} onPickB={setCompareB} />
+            <CompareScreen food={food} db={db} factor={factor} portion={portion} compareB={compareB} onPickB={setCompareB} onSearch={() => openSearch('compareB')} />
           )}
         </div>
 
@@ -132,13 +154,14 @@ export default function App() {
         <SearchOverlay
           db={db}
           query={query}
+          mode={searchMode}
           onQuery={setQuery}
-          onClose={() => { setSearchOpen(false); setQuery(''); }}
-          onPick={pickFood}
+          onClose={closeSearch}
+          onPick={pickFromSearch}
           canGenerate={settingsReady(settings)}
           generating={genJob?.status === 'running'}
-          onGenerate={startGenerate}
-          onOpenSettings={() => { setSearchOpen(false); setSettingsOpen(true); }}
+          onGenerate={(q) => startGenerate(q, searchMode)}
+          onOpenSettings={() => { closeSearch(); setSettingsOpen(true); }}
         />
       )}
       {settingsOpen && (

@@ -7,6 +7,17 @@ adhère au [versionnage sémantique](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+### Ajouté
+
+- **Comparer** : une **2ᵉ loupe** ouvre la recherche pour choisir l'aliment B dans
+  toute la base (aliments intégrés + générés par l'IA), en plus des chips rapides.
+  Un aliment généré depuis cette recherche est directement placé en B.
+
+### Corrigé
+
+- **Comparer** : sélection de B robuste si l'aliment n'existe plus / vaut A (repli
+  automatique sur un autre aliment).
+
 ## [0.1.0] — 2026-06-16
 
 Première version publique : application complète + enrichissement IA + PWA.

@@ -11,6 +11,8 @@ import { SearchIcon, SparkleIcon, HourglassIcon } from '../components/icons';
 interface Props {
   db: FoodDB;
   query: string;
+  /** 'main' picks the active food; 'compareB' picks the food to compare against. */
+  mode?: 'main' | 'compareB';
   onQuery: (q: string) => void;
   onClose: () => void;
   onPick: (id: string) => void;
@@ -23,11 +25,13 @@ interface Props {
   onOpenSettings: () => void;
 }
 
-export function SearchOverlay({ db, query, onQuery, onClose, onPick, canGenerate, generating, onGenerate, onOpenSettings }: Props) {
+export function SearchOverlay({ db, query, mode = 'main', onQuery, onClose, onPick, canGenerate, generating, onGenerate, onOpenSettings }: Props) {
+  const compareB = mode === 'compareB';
+  const placeholder = compareB ? 'Comparer avec un aliment…' : 'Rechercher un aliment…';
   const q = query.trim();
   const results = searchInDB(db, query);
   const n = results.length;
-  const resultLabel = q ? `${n} résultat${n > 1 ? 's' : ''}` : 'Tous les aliments';
+  const resultLabel = q ? `${n} résultat${n > 1 ? 's' : ''}` : compareB ? 'Choisir un aliment à comparer' : 'Tous les aliments';
   const exact = results.some((f) => f.name.toLowerCase() === q.toLowerCase());
   const showGenerate = q.length > 1 && !exact;
 
@@ -39,7 +43,7 @@ export function SearchOverlay({ db, query, onQuery, onClose, onPick, canGenerate
           <input
             value={query}
             onChange={(e) => onQuery(e.target.value)}
-            placeholder="Rechercher un aliment…"
+            placeholder={placeholder}
             autoFocus
             style={{ flex: 1, border: 'none', outline: 'none', background: 'transparent', fontFamily: font.sans, fontSize: 15, color: colors.ink }}
           />

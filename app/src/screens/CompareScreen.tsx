@@ -5,6 +5,7 @@ import type { Food, FoodDB } from '../data/types';
 import { colors, font, radius, shadow } from '../theme/tokens';
 import { fmt } from '../lib/format';
 import { Ring } from '../components/Ring';
+import { SearchIcon } from '../components/icons';
 
 interface Props {
   food: Food; // A
@@ -13,11 +14,14 @@ interface Props {
   portion: number;
   compareB: string;
   onPickB: (id: string) => void;
+  /** Open the search overlay to choose the food to compare against. */
+  onSearch: () => void;
 }
 
-export function CompareScreen({ food, db, factor, portion, compareB, onPickB }: Props) {
+export function CompareScreen({ food, db, factor, portion, compareB, onPickB, onSearch }: Props) {
   const A = food;
-  const bId = compareB === A.id ? db.order.find((x) => x !== A.id)! : compareB;
+  // Fall back to the first other food if B is unset, equals A, or no longer exists.
+  const bId = compareB !== A.id && db.foods[compareB] ? compareB : db.order.find((x) => x !== A.id)!;
   const B = db.foods[bId];
 
   const mk = (label: string, a: number, b: number, unit: string, max?: number) => {
@@ -41,15 +45,38 @@ export function CompareScreen({ food, db, factor, portion, compareB, onPickB }: 
 
   return (
     <div style={{ animation: 'molFade .26s ease both' }}>
-      <div style={{ fontFamily: font.mono, fontSize: 11, letterSpacing: 1.5, textTransform: 'uppercase', color: colors.ink2, margin: '4px 4px 10px' }}>
-        Comparer avec
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, margin: '4px 4px 10px' }}>
+        <span style={{ fontFamily: font.mono, fontSize: 11, letterSpacing: 1.5, textTransform: 'uppercase', color: colors.ink2 }}>
+          Comparer avec
+        </span>
+        <button
+          onClick={onSearch}
+          aria-label="Rechercher un aliment à comparer"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            flexShrink: 0,
+            border: `1px solid ${colors.controlBorder}`,
+            background: colors.surface,
+            borderRadius: radius.pill,
+            padding: '7px 12px',
+            fontFamily: font.sans,
+            fontSize: 12.5,
+            color: colors.ink2,
+            cursor: 'pointer',
+          }}
+        >
+          <SearchIcon size={14} color={colors.ink2} />
+          Rechercher
+        </button>
       </div>
       <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '2px 4px 12px', margin: '0 -4px' }}>
         {db.order
           .filter((id) => id !== A.id)
           .map((id) => {
             const f = db.foods[id];
-            const active = id === compareB;
+            const active = id === bId;
             return (
               <div
                 key={id}
