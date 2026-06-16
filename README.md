@@ -32,7 +32,7 @@ On choisit un aliment, on ajuste la **portion** (10–500 g), et toutes les vale
 | 🔬 | **Composition** | Anneaux de macros, micronutriments et molécules clés par aliment |
 | 🌳 | **Arborescence** | Familles → sous-familles → molécules, dépliables (acides gras, acides aminés…) |
 | 🫀 | **Corps** | Silhouette, systèmes touchés, bénéfices, interactions et points de vigilance |
-| ⚖️ | **Comparer** | Deux aliments côte à côte, à portion égale ; **2ᵉ loupe** pour choisir l'aliment B dans toute la base (chips rapides + recherche) |
+| ⚖️ | **Comparer** | Deux aliments côte à côte, à portion égale ; **2ᵉ loupe** pour choisir l'aliment B ; lignes **Protéines / Lipides / Glucides dépliables** (acides aminés, classes d'acides gras, sucres) avec marqueur **Δ** des différences |
 | 🎚️ | **Portion dynamique** | Stepper 10–500 g, recalcul live des valeurs et des valences |
 | 🤖 | **Enrichissement IA** | Génère un aliment absent via **OpenRouter** (clé + modèle au choix) |
 | ⏳ | **Génération en arrière-plan** | Badge flottant « IA » avec sablier animé + décompte en secondes, navigation jamais bloquée |

@@ -9,6 +9,11 @@ adhère au [versionnage sémantique](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- **Comparaison fine** : les lignes **Protéines**, **Lipides** et **Glucides** se
+  déplient pour comparer les sous-types entre A et B — acides aminés essentiels,
+  classes d'acides gras (saturés / mono / poly-insaturés) et types de glucides
+  (sucres / amidon) — avec un marqueur **Δ** indiquant quel aliment en contient le
+  plus.
 - **Création par l'IA depuis la recherche** : un aliment absent de la base se crée
   via l'IA (« Créer … avec l'IA ») ; à la fin de la génération en arrière-plan, sa
   **fiche complète s'ouvre automatiquement** (Composition), remplie par le modèle.
