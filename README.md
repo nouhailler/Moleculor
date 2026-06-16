@@ -101,9 +101,10 @@ npm run typecheck  # vérification de types seule
 Quand un aliment n'existe pas encore, on peut le **générer** :
 
 1. ⚙️ **Paramètres** (header) → saisir une **clé API OpenRouter** et choisir un **modèle** (« Charger les modèles » récupère le catalogue live).
-2. 🔍 Dans la recherche, taper un aliment absent → **« Générer … avec l'IA »**.
-3. ⏳ La génération tourne **en arrière-plan** : un badge flottant **« IA »** affiche un sablier qui tourne et un **décompte en secondes**, sans jamais bloquer la navigation. À la fin il devient cliquable (succès) ou affiche l'erreur.
-4. 🧪 Le modèle renvoie un *spec* compact → **assaini** → passé à `makeFood`, qui dérive arbre, timeline, bénéfices et risques exactement comme les aliments intégrés.
+2. 🔍 Dans la recherche, taper un aliment absent → **« Créer … avec l'IA »**.
+3. ⏳ La génération tourne **en arrière-plan** : un badge flottant **« IA »** affiche un sablier qui tourne et un **décompte en secondes**, sans jamais bloquer la navigation.
+4. ✅ À la fin, la **fiche complète s'ouvre automatiquement** (Composition) — remplie par l'IA : composition, molécules, effets sur le corps. En cas d'échec, le badge affiche l'erreur.
+5. 🧪 Sous le capot : le modèle renvoie un *spec* compact → **assaini** → passé à `makeFood`, qui dérive arbre, timeline, bénéfices et risques exactement comme les aliments intégrés.
 
 Les aliments générés sont **persistés** dans `localStorage` sous forme de *specs* (pas l'objet `Food` dérivé), pour rester compatibles si le schéma évolue.
 

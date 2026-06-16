@@ -95,8 +95,9 @@ export default function App() {
   };
 
   /** Kick off generation in the background: close the search so the user keeps
-      navigating, track progress in a floating badge, and add the food on success
-      without forcing a navigation (the badge is tappable to open it). */
+      navigating, track progress in a floating badge. On success the freshly
+      filled food sheet is opened automatically (Composition), unless it was
+      generated from the Compare search — then it slots straight into B. */
   const startGenerate = (q: string, target: 'main' | 'compareB' = 'main') => {
     const job: GenJob = { id: Date.now(), query: q, startedAt: Date.now(), status: 'running' };
     setGenJob(job);
@@ -104,8 +105,8 @@ export default function App() {
     generateFoodSpec(q, settings, db.order)
       .then((spec) => {
         addFood(spec);
-        // When generated from the Compare search, slot it straight into B.
         if (target === 'compareB') setCompareB(spec.id);
+        else pickFood(spec.id); // open the newly created sheet, filled by the AI
         setGenJob({ ...job, status: 'done', finishedAt: Date.now(), foodId: spec.id, foodName: spec.name });
       })
       .catch((e) => {

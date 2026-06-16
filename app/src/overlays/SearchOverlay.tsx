@@ -93,10 +93,10 @@ export function SearchOverlay({ db, query, mode = 'main', onQuery, onClose, onPi
                 )}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 14.5, color: generating ? colors.ink2 : colors.benefic, fontWeight: 500 }}>
-                    {generating ? 'Génération déjà en cours…' : `Générer « ${q} » avec l’IA`}
+                    {generating ? 'Génération déjà en cours…' : `Créer « ${q} » avec l’IA`}
                   </div>
                   <div style={{ fontSize: 11.5, color: colors.ink3, marginTop: 2 }}>
-                    {generating ? 'Suis la progression sur le badge IA' : 'Génération en arrière-plan, puis ajoutée à la base'}
+                    {generating ? 'Suis la progression sur le badge IA' : 'L’IA remplit la fiche complète, puis l’ouvre'}
                   </div>
                 </div>
               </button>

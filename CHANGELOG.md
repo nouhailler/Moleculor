@@ -9,6 +9,9 @@ adhère au [versionnage sémantique](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- **Création par l'IA depuis la recherche** : un aliment absent de la base se crée
+  via l'IA (« Créer … avec l'IA ») ; à la fin de la génération en arrière-plan, sa
+  **fiche complète s'ouvre automatiquement** (Composition), remplie par le modèle.
 - **Comparer** : une **2ᵉ loupe** ouvre la recherche pour choisir l'aliment B dans
   toute la base (aliments intégrés + générés par l'IA), en plus des chips rapides.
   Un aliment généré depuis cette recherche est directement placé en B.
