@@ -6,6 +6,7 @@
    so a noisy response can never crash the app. */
 
 import type { OpenRouterSettings } from './settings';
+import type { OffFacts } from './openfoodfacts';
 
 const CHAT_ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
 const MODELS_ENDPOINT = 'https://openrouter.ai/api/v1/models';
@@ -64,7 +65,7 @@ function systemPrompt(): string {
 
 /* ── HTTP call ────────────────────────────────────────────────────────────── */
 
-async function callOpenRouter(query: string, s: OpenRouterSettings): Promise<string> {
+async function callOpenRouter(userContent: string, s: OpenRouterSettings): Promise<string> {
   let res: Response;
   try {
     res = await fetch(CHAT_ENDPOINT, {
@@ -81,7 +82,7 @@ async function callOpenRouter(query: string, s: OpenRouterSettings): Promise<str
         response_format: { type: 'json_object' },
         messages: [
           { role: 'system', content: systemPrompt() },
-          { role: 'user', content: `Aliment : « ${query.trim()} ». Donne sa composition moléculaire au format JSON demandé.` },
+          { role: 'user', content: userContent },
         ],
       }),
     });
@@ -240,7 +241,93 @@ function toSpec(raw: any, takenIds: string[]): any {
 /** Ask the model for a food and return a sanitised spec ready for makeFood.
     `takenIds` lets us guarantee a unique id against the current database. */
 export async function generateFoodSpec(query: string, s: OpenRouterSettings, takenIds: string[]): Promise<any> {
-  const content = await callOpenRouter(query, s);
+  const content = await callOpenRouter(
+    `Aliment : « ${query.trim()} ». Donne sa composition moléculaire au format JSON demandé.`,
+    s,
+  );
   const raw = extractJson(content);
   return toSpec(raw, takenIds);
+}
+
+/* ── Barcode flow: Open Food Facts (real macros) + LLM (interpretive layer) ──
+   We feed the model the label numbers as ground truth so it doesn't invent
+   them, then overwrite every macro field OFF actually provided onto the spec —
+   so the real label always wins, and the LLM only contributes the Moleculor
+   layer (molecules, systems, micros, score, tagline) plus any macro OFF lacked. */
+
+function factsPrompt(f: OffFacts): string {
+  const known: string[] = [];
+  const push = (label: string, v: number | undefined, unit: string) => {
+    if (typeof v === 'number') known.push(`- ${label} : ${v} ${unit}`);
+  };
+  push('Énergie', f.kcal, 'kcal');
+  push('Lipides', f.lip, 'g');
+  push('dont saturés', f.sat, 'g');
+  push('dont mono-insaturés', f.mono, 'g');
+  push('dont poly-insaturés', f.poly, 'g');
+  push('Glucides', f.gluc, 'g');
+  push('dont sucres', f.sucres, 'g');
+  push('dont amidon', f.amidon, 'g');
+  push('Fibres', f.fib, 'g');
+  push('Protéines', f.prot, 'g');
+  push('Sel', f.salt, 'g');
+
+  return [
+    `Produit emballé scanné : « ${offLabelFor(f)} ».`,
+    f.category ? `Catégorie Open Food Facts : ${f.category}.` : '',
+    f.ingredients ? `Ingrédients : ${f.ingredients.slice(0, 600)}.` : '',
+    '',
+    'Valeurs nutritionnelles RÉELLES de l\'étiquette (pour 100 g) — utilise-les telles quelles, ne les recalcule pas :',
+    known.length ? known.join('\n') : '(non renseignées sur l\'étiquette)',
+    '',
+    'À partir de ces valeurs et des ingrédients, produis le JSON demandé : reprends ces macros à l\'identique dans "macros"/"sat"/"mono"/"poly"/"sucres"/"amidon", estime les champs manquants, et complète la couche d\'analyse Moleculor (micros, molecules, systems, score, tagline, cat).',
+  ]
+    .filter(Boolean)
+    .join('\n');
+}
+
+/** offLabel without importing the module's helper to avoid a cycle at call time. */
+function offLabelFor(f: OffFacts): string {
+  return f.brand ? `${f.name} — ${f.brand}` : f.name;
+}
+
+const clampLip = (v: number | undefined, lip: number) =>
+  typeof v === 'number' ? clamp(v, 0, lip || 100) : undefined;
+
+/** Generate a spec for a scanned product: OFF macros as ground truth + LLM. */
+export async function generateFoodSpecFromFacts(
+  facts: OffFacts,
+  s: OpenRouterSettings,
+  takenIds: string[],
+): Promise<any> {
+  const content = await callOpenRouter(factsPrompt(facts), s);
+  const raw = extractJson(content);
+  const spec = toSpec(raw, takenIds);
+
+  // Open Food Facts wins on every quantitative field it actually provided.
+  const lip = typeof facts.lip === 'number' ? clamp(facts.lip, 0, 100) : spec.lip;
+  const gluc = typeof facts.gluc === 'number' ? clamp(facts.gluc, 0, 100) : spec.gluc;
+  const overrides: Record<string, number> = {};
+  if (typeof facts.kcal === 'number') overrides.kcal = Math.max(0, Math.round(facts.kcal));
+  if (typeof facts.lip === 'number') overrides.lip = lip;
+  if (typeof facts.gluc === 'number') overrides.gluc = gluc;
+  if (typeof facts.fib === 'number') overrides.fib = clamp(facts.fib, 0, 100);
+  if (typeof facts.prot === 'number') overrides.prot = clamp(facts.prot, 0, 100);
+  const sat = clampLip(facts.sat, lip);
+  const mono = clampLip(facts.mono, lip);
+  const poly = clampLip(facts.poly, lip);
+  if (sat !== undefined) overrides.sat = sat;
+  if (mono !== undefined) overrides.mono = mono;
+  if (poly !== undefined) overrides.poly = poly;
+  if (typeof facts.sucres === 'number') overrides.sucres = clamp(facts.sucres, 0, gluc || 100);
+  if (typeof facts.amidon === 'number') overrides.amidon = clamp(facts.amidon, 0, gluc || 100);
+
+  return {
+    ...spec,
+    ...overrides,
+    name: facts.name || spec.name,
+    /** keep the barcode so the same product isn't re-scanned into a duplicate. */
+    barcode: facts.barcode,
+    source: 'openfoodfacts',
+  };
 }

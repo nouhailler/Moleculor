@@ -5,7 +5,8 @@ import { useState } from 'react';
 import type { Info, SystemEntry } from './data/types';
 import { useFoodDB } from './hooks/useFoodDB';
 import { loadSettings, saveSettings, settingsReady, type OpenRouterSettings } from './data/settings';
-import { generateFoodSpec } from './data/enrich';
+import { generateFoodSpec, generateFoodSpecFromFacts } from './data/enrich';
+import { fetchOffProduct, isValidBarcode, offLabel } from './data/openfoodfacts';
 import { Header } from './components/Header';
 import { TabBar, type Tab } from './components/TabBar';
 import { CompositionScreen } from './screens/CompositionScreen';
@@ -16,6 +17,7 @@ import { MoleculeSheet } from './overlays/MoleculeSheet';
 import { SystemSheet } from './overlays/SystemSheet';
 import { SearchOverlay } from './overlays/SearchOverlay';
 import { SettingsSheet } from './overlays/SettingsSheet';
+import { BarcodeScanner } from './components/BarcodeScanner';
 import { GenerationBadge, type GenJob } from './components/GenerationBadge';
 
 const PORTION_MIN = 10;
@@ -29,6 +31,7 @@ export default function App() {
   const [foodId, setFoodId] = useState('chocolat-noir');
   const [compareB, setCompareB] = useState('puree-amande');
   const [searchOpen, setSearchOpen] = useState(false);
+  const [scanOpen, setScanOpen] = useState(false);
   // Which target the search overlay fills: the main food (A) or the compare food (B).
   const [searchMode, setSearchMode] = useState<'main' | 'compareB'>('main');
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -114,6 +117,52 @@ export default function App() {
       });
   };
 
+  /** Barcode scanned: fetch the real label data from Open Food Facts, then let
+      the IA derive the Moleculor layer (OFF macros win). Re-uses the generation
+      badge for progress, and short-circuits if the product is already imported. */
+  const startScanned = (code: string, target: 'main' | 'compareB' = 'main') => {
+    setScanOpen(false);
+    if (!isValidBarcode(code)) {
+      setGenJob({ id: Date.now(), query: code, startedAt: Date.now(), status: 'error', finishedAt: Date.now(), error: 'Code-barres non valide.' });
+      return;
+    }
+    // Already imported? open it instead of paying for a new generation.
+    const known = generatedSpecs.find((s) => s.barcode === code);
+    if (known) {
+      if (target === 'compareB') setCompareB(known.id);
+      else pickFood(known.id);
+      return;
+    }
+    const job: GenJob = { id: Date.now(), query: code, startedAt: Date.now(), status: 'running' };
+    setGenJob(job);
+    fetchOffProduct(code)
+      .then((facts) => {
+        if (!facts || !facts.name) throw new Error(`Produit ${code} introuvable sur Open Food Facts.`);
+        setGenJob({ ...job, query: offLabel(facts) });
+        return generateFoodSpecFromFacts(facts, settings, db.order);
+      })
+      .then((spec) => {
+        addFood(spec);
+        if (target === 'compareB') setCompareB(spec.id);
+        else pickFood(spec.id);
+        setGenJob({ ...job, query: spec.name, status: 'done', finishedAt: Date.now(), foodId: spec.id, foodName: spec.name });
+      })
+      .catch((e) => {
+        setGenJob({ ...job, status: 'error', finishedAt: Date.now(), error: e instanceof Error ? e.message : "L'import a échoué." });
+      });
+  };
+
+  /** Scan entry point from the search overlay: needs an OpenRouter key for the
+      interpretive layer — otherwise route the user to settings. */
+  const onScanRequest = () => {
+    if (!settingsReady(settings)) {
+      closeSearch();
+      setSettingsOpen(true);
+      return;
+    }
+    setScanOpen(true);
+  };
+
   return (
     <div className="device">
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -162,7 +211,14 @@ export default function App() {
           canGenerate={settingsReady(settings)}
           generating={genJob?.status === 'running'}
           onGenerate={(q) => startGenerate(q, searchMode)}
+          onScan={onScanRequest}
           onOpenSettings={() => { closeSearch(); setSettingsOpen(true); }}
+        />
+      )}
+      {scanOpen && (
+        <BarcodeScanner
+          onDetect={(code) => startScanned(code, searchMode)}
+          onClose={() => setScanOpen(false)}
         />
       )}
       {settingsOpen && (

@@ -8,6 +8,10 @@ dist/
 # Local archive / scratch
 Moleculor.zip
 
+# Sorties du script d'import en masse (scripts/import-aliments.sh)
+.cache/
+moleculor-import.json
+
 # Editor / OS
 .DS_Store
 .vscode/

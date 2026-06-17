@@ -6,7 +6,7 @@ import type { FoodDB } from '../data/types';
 import { colors, font, radius } from '../theme/tokens';
 import { scoreColor, swatchFor } from '../lib/valence';
 import { searchInDB } from '../data/repository';
-import { SearchIcon, SparkleIcon, HourglassIcon } from '../components/icons';
+import { SearchIcon, SparkleIcon, HourglassIcon, BarcodeIcon } from '../components/icons';
 
 interface Props {
   db: FoodDB;
@@ -22,10 +22,12 @@ interface Props {
   generating: boolean;
   /** Start generating the queried food in the background, then close the search. */
   onGenerate: (query: string) => void;
+  /** Open the barcode scanner to import a packaged product (Open Food Facts + IA). */
+  onScan: () => void;
   onOpenSettings: () => void;
 }
 
-export function SearchOverlay({ db, query, mode = 'main', onQuery, onClose, onPick, canGenerate, generating, onGenerate, onOpenSettings }: Props) {
+export function SearchOverlay({ db, query, mode = 'main', onQuery, onClose, onPick, canGenerate, generating, onGenerate, onScan, onOpenSettings }: Props) {
   const compareB = mode === 'compareB';
   const placeholder = compareB ? 'Comparer avec un aliment…' : 'Rechercher un aliment…';
   const q = query.trim();
@@ -48,6 +50,14 @@ export function SearchOverlay({ db, query, mode = 'main', onQuery, onClose, onPi
             style={{ flex: 1, border: 'none', outline: 'none', background: 'transparent', fontFamily: font.sans, fontSize: 15, color: colors.ink }}
           />
         </div>
+        <button
+          onClick={onScan}
+          aria-label="Scanner un code-barres"
+          title="Scanner un code-barres"
+          style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', width: 42, height: 42, borderRadius: radius.row, background: colors.surface, border: `1px solid ${colors.controlBorder}`, cursor: 'pointer' }}
+        >
+          <BarcodeIcon size={18} color={colors.ink2} />
+        </button>
         <div onClick={onClose} style={{ fontSize: 14.5, color: colors.benefic, cursor: 'pointer', flexShrink: 0 }}>
           Fermer
         </div>

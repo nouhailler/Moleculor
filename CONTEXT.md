@@ -62,6 +62,30 @@ champs directs de `Food` ; les **acides aminés essentiels** sont lus depuis les
 aussi pour les aliments générés par l'IA, sans calcul dédié. Un marqueur **Δ** indique
 l'aliment dominant par sous-type.
 
+### 8. Scan de code-barres : Open Food Facts pour les chiffres, IA pour l'analyse
+
+Le flux code-barres sépare **deux sources de vérité** selon la nature de la donnée :
+
+- **Open Food Facts** (`app/src/data/openfoodfacts.ts`) fournit les valeurs
+  *quantitatives* réelles de l'étiquette (kcal, macros, classes d'acides gras…).
+  Une IA les *inventerait* — autant lire l'étiquette. Base gratuite, sans clé,
+  d'origine française, à forte couverture des produits emballés.
+- **L'IA** (`enrich.ts` → `generateFoodSpecFromFacts`) reçoit ces chiffres **comme
+  contraintes** et ne produit que la couche d'interprétation Moleculor (molécules,
+  systèmes, micros, score, tagline) — la valeur ajoutée qui n'existe dans aucune base.
+
+`generateFoodSpecFromFacts` **écrase** ensuite chaque macro effectivement fournie par
+Open Food Facts sur le *spec* renvoyé par le modèle : l'étiquette gagne toujours, l'IA
+ne complète que les champs manquants. Plus **précis** (pas d'hallucination des macros)
+et plus **économe** (le modèle travaille moins). Le *spec* obtenu repart par le pipeline
+commun (`toSpec` → `addFood` → `makeFood`) ; il garde `barcode` + `source: 'openfoodfacts'`
+pour dédupliquer un re-scan et apparaître dans l'export/import comme tout aliment généré.
+
+Le scan lui-même (`components/BarcodeScanner.tsx`) privilégie l'API native
+`BarcodeDetector` (zéro dépendance) et **charge `@zxing/browser` à la demande** en repli
+(iOS Safari, Firefox) — la lib reste hors du bundle initial. Le flux exige une clé
+OpenRouter (couche IA) : sans clé, le bouton renvoie vers les Paramètres.
+
 ## 🧬 Modèle de données
 
 Défini dans `app/src/data/types.ts`. Pièces principales :
@@ -93,6 +117,12 @@ Pour brancher **Ciqual / ANSES**, **USDA FoodData Central** ou une API nutrition
 - Auth : header `Authorization: Bearer <clé>`, plus `HTTP-Referer` / `X-Title`.
 
 > ⚠️ La clé vit **en clair** dans le navigateur. Pour une mise en production, la router via un proxy backend.
+
+## 🛒 Open Food Facts
+
+- Produit par code-barres : `GET https://world.openfoodfacts.org/api/v2/product/<code>.json` (public, sans clé).
+- Mapping vers un *spec* partiel : `app/src/data/openfoodfacts.ts` (`fetchOffProduct`).
+- Source des **macros réelles** uniquement ; la couche d'analyse vient de l'IA (cf. décision n°8).
 
 ## 🎨 Design
 

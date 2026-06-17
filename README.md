@@ -35,6 +35,7 @@ On choisit un aliment, on ajuste la **portion** (10–500 g), et toutes les vale
 | ⚖️ | **Comparer** | Deux aliments côte à côte, à portion égale ; **2ᵉ loupe** pour choisir l'aliment B ; lignes **Protéines / Lipides / Glucides dépliables** (acides aminés, classes d'acides gras, sucres) avec marqueur **Δ** des différences |
 | 🎚️ | **Portion dynamique** | Stepper 10–500 g, recalcul live des valeurs et des valences |
 | 🤖 | **Enrichissement IA** | Génère un aliment absent via **OpenRouter** (clé + modèle au choix) |
+| 📷 | **Scan code-barres** | Scanne un produit emballé → valeurs réelles via **Open Food Facts** + couche d'analyse par l'IA |
 | ⏳ | **Génération en arrière-plan** | Badge flottant « IA » avec sablier animé + décompte en secondes, navigation jamais bloquée |
 | 💾 | **Sauvegarde** | **Export / import** des aliments créés par l'IA (fichier JSON) pour recréer les fiches sur un autre appareil |
 | 📱 | **PWA installable** | Icône d'app, plein écran, prête pour Netlify |
@@ -115,6 +116,25 @@ Dans **⚙ Paramètres → Sauvegarde des aliments** : **Exporter** télécharge
 
 > ⚠️ **Sécurité** — la clé OpenRouter est stockée **en clair** côté client (`localStorage`). Acceptable pour une démo locale ; en production, la déplacer derrière un proxy backend pour qu'elle n'atteigne jamais le navigateur.
 
+### 📷 Scanner un code-barres
+
+Dans la recherche, le bouton 📷 ouvre la caméra pour scanner un produit emballé :
+
+1. 🔎 Le code-barres interroge **Open Food Facts** (base gratuite, sans clé) pour les **valeurs réelles de l'étiquette** : kcal, lipides (saturés / mono / poly), glucides (sucres / amidon), fibres, protéines, sel.
+2. 🤖 L'**IA** reçoit ces chiffres comme contraintes et n'ajoute que la **couche Moleculor** (molécules, systèmes, micros, score, tagline) — les macros d'Open Food Facts **priment** toujours.
+3. ✅ La fiche s'ouvre, remplie. Un produit déjà scanné est rouvert **sans nouvel appel IA** (dédup par code-barres).
+
+Le scan utilise l'API native `BarcodeDetector` quand elle est disponible (Android/Chrome) et bascule sinon sur `@zxing/browser` (iOS Safari, Firefox), chargé à la demande. La caméra nécessite **HTTPS** (donc le site déployé, pas `localhost`) et une clé OpenRouter configurée.
+
+### 📦 Import en masse (hors-app)
+
+Pour intégrer une longue liste d'aliments sans grignoter de tokens en session, `scripts/import-aliments.sh` génère via OpenRouter un fichier **directement importable** (⚙ Paramètres → Importer). Il réutilise le même prompt et le même format de *spec* que l'app, avec un cache de reprise.
+
+```bash
+./scripts/import-aliments.sh -k "sk-or-..." -m "anthropic/claude-sonnet-4.5"
+# puis : ⚙ Paramètres → Importer des aliments → moleculor-import.json
+```
+
 ## 📱 Installer en PWA
 
 L'app embarque un `manifest.webmanifest`, une icône maskable et les balises `apple-touch-icon`. Une fois déployée (HTTPS), « Ajouter à l'écran d'accueil » l'installe en plein écran avec l'icône molécule. 🧬
@@ -143,13 +163,14 @@ Le `netlify.toml` à la racine est déjà configuré (base `app/`, fallback SPA,
 ├── CONTEXT.md                # contexte produit + décisions d'architecture
 ├── CHANGELOG.md              # historique des versions
 ├── netlify.toml              # config de déploiement (PWA / SPA)
+├── scripts/                  # import-aliments.sh (génération en masse → fichier importable)
 ├── app/                      # l'application React + Vite
 │   ├── public/               # icônes PWA + manifest
 │   └── src/
-│       ├── data/             # types, foodData (base + makeFood), repository, store, settings, enrich
+│       ├── data/             # types, foodData (base + makeFood), repository, store, settings, enrich, openfoodfacts
 │       ├── hooks/            # useFoodDB (base vivante : intégrée + générée)
 │       ├── theme/            # tokens (couleurs, typo, rayons, ombres)
-│       ├── components/       # Header, TabBar, Ring, Donut, GenerationBadge, icons
+│       ├── components/       # Header, TabBar, Ring, Donut, GenerationBadge, BarcodeScanner, icons
 │       ├── screens/          # Composition, Tree, Body, Compare
 │       └── overlays/         # Sheet, MoleculeSheet, SystemSheet, SearchOverlay, SettingsSheet
 └── design_handoff_moleculor/ # spec de design d'origine + captures de référence
@@ -157,7 +178,7 @@ Le `netlify.toml` à la racine est déjà configuré (base `app/`, fallback SPA,
 
 ## 🧱 Stack
 
-**React 18** · **Vite 5** · **TypeScript 5** · PWA · OpenRouter (génération IA) · zéro dépendance UI (SVG inline, design tokens maison).
+**React 18** · **Vite 5** · **TypeScript 5** · PWA · OpenRouter (génération IA) · Open Food Facts (macros par code-barres) · `@zxing/browser` (scan, en repli, lazy) · zéro dépendance UI (SVG inline, design tokens maison).
 
 ## 🧭 En savoir plus
 

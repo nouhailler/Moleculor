@@ -9,6 +9,19 @@ adhère au [versionnage sémantique](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- **Scan de code-barres** : importer un produit emballé en le scannant. Le code-barres
+  interroge **Open Food Facts** (gratuit, sans clé) pour les valeurs réelles de
+  l'étiquette (kcal, lipides/saturés/mono/poly, glucides/sucres/amidon, fibres,
+  protéines, sel), puis l'**IA** dérive uniquement la couche Moleculor (molécules,
+  systèmes, micros, score, tagline). Approche **hybride** : les macros d'Open Food
+  Facts **priment** toujours sur l'IA. Scanner via l'API native `BarcodeDetector`
+  (Android/Chrome) avec repli `@zxing/browser` (iOS Safari / Firefox), chargé à la
+  demande. Un produit déjà importé est rouvert sans nouvel appel IA (dédup par
+  code-barres). Bouton 📷 dans la barre de recherche.
+- **Script d'import en masse** (`scripts/import-aliments.sh`) : génère hors-app, via
+  OpenRouter, un fichier d'aliments **directement importable** (Paramètres → Importer).
+  Reprend fidèlement le prompt et le format de *spec* de l'app, avec cache de reprise
+  (relance = 0 token gaspillé). Clé et modèle en paramètres (`-k`, `-m`).
 - **Sauvegarde des aliments** (Paramètres) : **export** des aliments créés par l'IA
   dans un fichier JSON et **import** sur un autre appareil pour recréer les fiches à
   l'identique (les *specs* repassent par `makeFood`). L'import déduplique par id et
